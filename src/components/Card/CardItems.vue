@@ -1,39 +1,24 @@
 <template>
-  <div v-if="listOne && listOne.length">
-    <CardItem
-      v-for="itemTask in listOne"
-      :key="itemTask.id"
-      :itemTask="itemTask"
-      draggable="true"
-      @dragstart="startDrag($event, itemTask)"
-    />
-  </div>
-  <div v-if="listTwo && listTwo.length">
-    <CardItem
-      v-for="itemTask in listTwo"
-      :key="itemTask.id"
-      :itemTask="itemTask"
-      draggable="true"
-      @dragstart="startDrag($event, itemTask)"
-    />
-  </div>
+  <CardItem
+    v-for="task in tasks"
+    :key="task.title"
+    :task="task"
+    draggable="true"
+  />
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import CardItem from "@/components/Card/Carditem.vue";
-import ListModels from "@/models/list.models";
+import ListModels from "@/models/board.models";
+import TaskModels from "@/models/task.models";
 
 export default defineComponent({
   name: "CardItems",
   components: { CardItem },
   props: {
-    listOne: {
-      type: Array as PropType<ListModels[]>,
-      required: true,
-    },
-    listTwo: {
-      type: Array as PropType<ListModels[]>,
+    tasks: {
+      type: Array as PropType<TaskModels[]>,
       required: true,
     },
   },

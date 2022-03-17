@@ -1,15 +1,10 @@
 <template>
   <div class="task">
-    <div class="task__title">{{ itemTask.name }}</div>
+    <div class="task__title">{{ task.name }}</div>
     <div class="task__body">
-      <div class="task__body-description">{{ itemTask.description }}</div>
+      <div class="task__body-description">{{ task.description }}</div>
       <div class="task__status">
-        <p class="task__status-process" v-if="itemTask.list === 1">
-          BackLog...
-        </p>
-        <p class="task__status-process" v-if="itemTask.list === 2">
-          Process...
-        </p>
+        Process...
         <!-- В отдельный компонент + переделать -->
       </div>
     </div>
@@ -22,7 +17,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "CardItem",
   props: {
-    itemTask: {
+    task: {
       type: String,
     },
   },
@@ -31,6 +26,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .task {
+  width: 250px;
   margin: 2px;
   border: 1px solid black;
   &__body {

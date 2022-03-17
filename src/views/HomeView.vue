@@ -3,119 +3,119 @@
     <h2>TODO</h2>
     <div class="todo">
       <div>
-        <UiButton @click="showDialog">Добавить</UiButton>
+        <UiButton @click="boardModalAdd">Добавить</UiButton>
       </div>
       <div class="container">
-        <div
-          class="task"
-          @drop="onDrop($event, 1)"
-          @dragover.prevent
-          @dragenter.prevent
-        >
-          <h2>BackLog</h2>
-          <Card :listOne="listOne" @startDrag="startDrag" />
-        </div>
-        <div
-          class="task"
-          @drop="onDrop($event, 2)"
-          @dragover.prevent
-          @dragenter.prevent
-        >
-          <h2>Process</h2>
-          <Card :listTwo="listTwo" @startDrag="startDrag" />
+        <div class="task" v-for="board in boards" :key="board.name">
+          <h2>{{ board.name }}</h2>
+          <UiButton @click="taskModalAdd">add task</UiButton>
+          <CardItems :tasks="board.tasks" />
         </div>
       </div>
     </div>
-    <UiModal v-model:show="dialogVisible">
+
+    <UiModal v-model:show="boardModalVisible">
       <div class="modal">
-        <UiInput placeholder="Name board" v-model="boardCreateForm.name" />
-        <UiInput placeholder="Color: #fff" v-model="boardCreateForm.color" />
-        <UiButton>Create</UiButton>
+        <form>
+          <UiInput placeholder="Name board" v-model="boardForm.name" />
+        </form>
+        <UiButton @click.prevent="createBoard(boardForm)">Create</UiButton>
+      </div>
+    </UiModal>
+    <UiModal v-model:show="taskModalVisible">
+      <div class="modal">
+        <form>
+          <UiInput placeholder="Name ash" v-model="taskForm.title" />
+          <UiInput placeholder="description" v-model="taskForm.description" />
+        </form>
+        <UiButton @click.prevent="createTask(taskForm)">Create</UiButton>
       </div>
     </UiModal>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
-
+import { defineComponent } from "vue";
+import CardItems from "@/components/Card/CardItems.vue";
 import UiButton from "@/components/UI/button/uiButton.vue";
 
-import Card from "@/components/Card/Card.vue"; // @ is an alias to /src
-
-import ListModels from "@/models/list.models";
 import UiModal from "@/components/UI/modal/uiModal.vue";
 import UiInput from "@/components/UI/input/uiInput.vue";
+import { mapActions, mapState } from "pinia";
+import { useStore } from "@/store";
+import BoardModels from "@/models/board.models";
+import TaskModels from "@/models/task.models";
 
 export default defineComponent({
   name: "HomeView",
-  components: { UiInput, UiModal, Card, UiButton },
+  components: { UiInput, UiModal, CardItems, UiButton },
   data() {
     return {
-      dialogVisible: false,
-      boardCreateForm: {
+      boardModalVisible: false,
+      taskModalVisible: false,
+      boardForm: {
         name: "",
-        color: "",
-        id: Date.now(),
+        tasks: [],
       },
-      list: [
-        {
-          id: 1,
-          name: "task 1",
-          description: "Create and learn task 1",
-          list: 1,
-        },
-        {
-          id: 2,
-          name: "task 2",
-          description: "Create and learn task 2",
-          list: 2,
-        },
-        {
-          id: 3,
-          name: "task 3",
-          description: "Create and learn task 3",
-          list: 2,
-        },
-        {
-          id: 4,
-          name: "task 4",
-          description: "Create and learn task 3",
-          list: 1,
-        },
-        {
-          id: 5,
-          name: "task 5",
-          description: "Create and learn task 3",
-          list: 1,
-        },
-      ] as ListModels[],
+      taskForm: {
+        title: "",
+        description: "",
+      },
     };
   },
   computed: {
-    listOne(): ListModels[] {
-      return this.list.filter((item: any) => item.list === 1);
-    },
-    listTwo(): ListModels[] {
-      return this.list.filter((item: any) => item.list === 2);
-    }, //переделать
+    ...mapState(useStore, {
+      boards: "boards",
+    }),
+
+    // listOne(): ListModels[] {
+    //   return this.list.filter((item: any) => item.list === 1);
+    // },
+    // listTwo(): ListModels[] {
+    //   return this.list.filter((item: any) => item.list === 2);
+    // }, //переделать
   },
   methods: {
-    showDialog() {
-      this.dialogVisible = true;
+    boardModalAdd() {
+      this.boardModalVisible = true;
       console.log("модал");
     },
-    startDrag(evt: any, item: any) {
-      console.log("startDrag", typeof evt, item);
-      evt.dataTransfer.dropEffect = "move";
-      evt.dataTransfer.effectAllowed = "move";
-      evt.dataTransfer.setData("itemID", item.id);
+    taskModalAdd() {
+      this.taskModalVisible = true;
+      console.log("модал");
     },
-    onDrop(evt: any, list: any) {
-      const itemID = evt.dataTransfer.getData("itemID");
-      const item: any = this.list.find((item) => item.id == itemID);
-      item.list = list;
+    ...mapActions(useStore, {
+      createBoards: "createBoards",
+      createTasks: "createTasks",
+    }),
+    createBoard(boardForm: BoardModels) {
+      this.createBoards(boardForm);
+      this.boardModalVisible = false;
+      this.boardForm = {
+        name: "",
+        tasks: [],
+      };
     },
+    createTask(taskForm: TaskModels) {
+      this.createTasks(taskForm);
+      this.taskModalVisible = false;
+      this.taskForm = {
+        title: "",
+        description: "",
+      };
+      console.log(taskForm);
+    },
+    // startDrag(evt: any, item: any) {
+    //   console.log("startDrag", typeof evt, item);
+    //   evt.dataTransfer.dropEffect = "move";
+    //   evt.dataTransfer.effectAllowed = "move";
+    //   evt.dataTransfer.setData("itemID", item.id);
+    // },
+    // onDrop(evt: any, list: any) {
+    //   const itemID = evt.dataTransfer.getData("itemID");
+    //   const item: any = this.list.find((item) => item.id == itemID);
+    //   item.list = list;
+    // },
   },
 });
 </script>

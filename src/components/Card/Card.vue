@@ -7,7 +7,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import CardItems from "@/components/Card/CardItems.vue";
-import ListModels from "@/models/list.models";
+import ListModels from "@/models/board.models";
 
 export default defineComponent({
   name: "GlobalCard",

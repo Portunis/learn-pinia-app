@@ -1,4 +1,4 @@
 export default interface TaskModels {
-  name: string;
-  color: string;
+  title: string;
+  description: string;
 }
