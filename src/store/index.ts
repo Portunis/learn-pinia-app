@@ -5,18 +5,7 @@ import BoardModels from "@/models/board.models";
 
 export const useStore = defineStore("main", {
   state: () => ({
-    boards: [
-      {
-        id: 1,
-        name: "task 1",
-        tasks: [
-          {
-            title: "task1",
-            description: "dasfasd",
-          },
-        ] as TaskModels[],
-      },
-    ] as BoardModels[],
+    boards: [] as BoardModels[],
   }),
   getters: {},
   actions: {

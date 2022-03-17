@@ -13,24 +13,30 @@
         </div>
       </div>
     </div>
-
-    <UiModal v-model:show="boardModalVisible">
-      <div class="modal">
-        <form>
-          <UiInput placeholder="Name board" v-model="boardForm.name" />
-        </form>
-        <UiButton @click.prevent="createBoard(boardForm)">Create</UiButton>
-      </div>
-    </UiModal>
-    <UiModal v-model:show="taskModalVisible">
-      <div class="modal">
-        <form>
-          <UiInput placeholder="Name ash" v-model="taskForm.title" />
-          <UiInput placeholder="description" v-model="taskForm.description" />
-        </form>
-        <UiButton @click.prevent="createTask(taskForm)">Create</UiButton>
-      </div>
-    </UiModal>
+    <transition name="notification">
+      <UiModal v-model:show="boardModalVisible">
+        <div class="modal">
+          <form>
+            <UiInput placeholder="Name board" v-model="boardForm.name" />
+          </form>
+          <UiButton @click.prevent="createBoard(boardForm)">Create</UiButton>
+        </div>
+      </UiModal>
+    </transition>
+    <transition name="notification">
+      <UiModal v-model:show="taskModalVisible">
+        <div class="modal">
+          <form>
+            <UiInput placeholder="Name ash" v-model="taskForm.title" />
+            <UiInput placeholder="description" v-model="taskForm.description" />
+          </form>
+          <UiButton @click.prevent="createTask(taskForm)">Create</UiButton>
+        </div>
+      </UiModal>
+    </transition>
+    <transition name="notification">
+      <UiNotification v-if="notificationTask">Чекай console</UiNotification>
+    </transition>
   </div>
 </template>
 
@@ -45,14 +51,16 @@ import { mapActions, mapState } from "pinia";
 import { useStore } from "@/store";
 import BoardModels from "@/models/board.models";
 import TaskModels from "@/models/task.models";
+import UiNotification from "@/components/UI/notification/uiNotification.vue";
 
 export default defineComponent({
   name: "HomeView",
-  components: { UiInput, UiModal, CardItems, UiButton },
+  components: { UiNotification, UiInput, UiModal, CardItems, UiButton },
   data() {
     return {
       boardModalVisible: false,
       taskModalVisible: false,
+      notificationTask: false,
       boardForm: {
         name: "",
         tasks: [],
@@ -103,6 +111,10 @@ export default defineComponent({
         title: "",
         description: "",
       };
+      this.notificationTask = true;
+      setTimeout(() => {
+        this.notificationTask = false;
+      }, 5000);
       console.log(taskForm);
     },
     // startDrag(evt: any, item: any) {
@@ -121,6 +133,15 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.notification-enter-active,
+.notification-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.notification-enter-from,
+.notification-leave-to {
+  opacity: 0;
+}
 .modal {
   display: flex;
   flex-direction: column;
