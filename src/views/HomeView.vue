@@ -21,7 +21,7 @@
     <transition name="notification">
       <UiModal v-model:show="boardModalVisible">
         <div class="modal">
-          <form>
+          <form class="modal-form">
             <UiInput placeholder="Name board" v-model="boardForm.name" />
           </form>
           <UiButton @click.prevent="createBoard(boardForm)">Create</UiButton>
@@ -31,16 +31,17 @@
     <transition name="notification">
       <UiModal v-model:show="taskModalVisible">
         <div class="modal">
-          <form>
+          <form class="modal-form">
             <UiInput placeholder="Name ash" v-model="taskForm.title" />
             <UiInput placeholder="description" v-model="taskForm.description" />
+            <UiSelect v-model="taskForm.level" />
           </form>
           <UiButton @click.prevent="createTask(taskForm)">Create</UiButton>
         </div>
       </UiModal>
     </transition>
     <transition name="notification">
-      <UiNotification v-if="notificationTask">Чекай console</UiNotification>
+      <UiNotification v-if="notificationTask">task added</UiNotification>
     </transition>
   </div>
 </template>
@@ -50,6 +51,7 @@ import { defineComponent } from "vue";
 import CardItems from "@/components/Card/CardItems.vue";
 import UiButton from "@/components/UI/button/uiButton.vue";
 
+import draggableComponent from "vuedraggable";
 import UiModal from "@/components/UI/modal/uiModal.vue";
 import UiInput from "@/components/UI/input/uiInput.vue";
 import { mapActions, mapState } from "pinia";
@@ -57,10 +59,18 @@ import { useStore } from "@/store";
 import BoardModels from "@/models/board.models";
 import TaskModels from "@/models/task.models";
 import UiNotification from "@/components/UI/notification/uiNotification.vue";
+import UiSelect from "@/components/UI/select/uiSelect.vue";
 
 export default defineComponent({
   name: "HomeView",
-  components: { UiNotification, UiInput, UiModal, CardItems, UiButton },
+  components: {
+    UiSelect,
+    UiNotification,
+    UiInput,
+    UiModal,
+    CardItems,
+    UiButton,
+  },
   data() {
     return {
       boardModalVisible: false,
@@ -76,6 +86,7 @@ export default defineComponent({
         id: Date.now(),
         title: "",
         description: "",
+        level: "",
         idBoard: 2,
       },
     };
@@ -84,13 +95,6 @@ export default defineComponent({
     ...mapState(useStore, {
       boards: "boards",
     }),
-
-    // listOne(): ListModels[] {
-    //   return this.list.filter((item: any) => item.list === 1);
-    // },
-    // listTwo(): ListModels[] {
-    //   return this.list.filter((item: any) => item.list === 2);
-    // }, //переделать
   },
   methods: {
     boardModalAdd() {
@@ -100,7 +104,6 @@ export default defineComponent({
     taskModalAdd(board: BoardModels) {
       this.taskForm.idBoard = board.id;
       this.taskModalVisible = true;
-      console.log("модал");
     },
     ...mapActions(useStore, {
       createBoards: "createBoards",
@@ -116,13 +119,13 @@ export default defineComponent({
       };
     },
     createTask(taskForm: TaskModels) {
-      console.log("taskform", taskForm);
       this.createTasks(taskForm);
       this.taskModalVisible = false;
       this.taskForm = {
         id: Date.now(),
         title: "",
         description: "",
+        level: "",
         idBoard: 1,
       };
       this.notificationTask = true;
@@ -130,17 +133,6 @@ export default defineComponent({
         this.notificationTask = false;
       }, 5000);
     },
-    // startDrag(evt: any, item: any) {
-    //   console.log("startDrag", typeof evt, item);
-    //   evt.dataTransfer.dropEffect = "move";
-    //   evt.dataTransfer.effectAllowed = "move";
-    //   evt.dataTransfer.setData("itemID", item.id);
-    // },
-    // onDrop(evt: any, list: any) {
-    //   const itemID = evt.dataTransfer.getData("itemID");
-    //   const item: any = this.list.find((item) => item.id == itemID);
-    //   item.list = list;
-    // },
   },
 });
 </script>
@@ -159,14 +151,20 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
 }
+.modal-form {
+  display: flex;
+  flex-direction: column;
+}
 .container {
   display: grid;
   justify-items: center;
+  align-items: start;
   grid-template-columns: repeat(4, 1fr);
   width: 1400px;
   margin: 0 auto;
 }
 .task {
+  margin-bottom: 10px;
   border-radius: 4px;
   padding: 10px;
   min-width: 250px;

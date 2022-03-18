@@ -1,9 +1,9 @@
 <template>
   <select class="select" v-model="modelValue" @change="changeOption">
-    <option disabled value="">Без сортировки</option>
-    <option value="car">Машины</option>
-    <option value="eat">Еда</option>
-    <option value="action">Приключения</option>
+    <option disabled>Без сортировки</option>
+    <option value="High">High</option>
+    <option value="Normal">Normal</option>
+    <option value="Casual">Casual</option>
   </select>
 </template>
 
@@ -12,9 +12,6 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "uiSelect",
-  props: {
-    modelValue: [String],
-  },
   methods: {
     changeOption(event: any) {
       this.$emit("update:modelValue", event.target.value);

@@ -1,33 +1,92 @@
 <template>
-  <CardItem
-    v-for="task in tasks"
-    :key="task.title"
-    :task="task"
-    draggable="true"
-  />
+  <draggableComponent
+    :list="tasks"
+    group="tasks"
+    tag="transition-group"
+    :component-data="{
+      tag: 'div',
+      type: 'transition-group',
+      name: !drag ? 'flip-list' : null,
+    }"
+    v-bind="dragOptions"
+    item-key="id"
+    class="list-group"
+    ghost-class="ghost"
+    :move="checkMove"
+    @start="dragging = true"
+    @end="dragging = false"
+  >
+    <template #item="{ element }">
+      <div class="list-group-item">
+        <div class="task">
+          <div class="task__title">{{ element.title }}</div>
+          <div class="task__body">
+            <div class="task__body-description">
+              {{ element.description.substring(0, 150) + ".." }}
+            </div>
+          </div>
+          <div class="task__status">
+            {{ element.level }}
+            <!-- В отдельный компонент  -->
+          </div>
+        </div>
+      </div>
+    </template>
+  </draggableComponent>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import CardItem from "@/components/Card/Carditem.vue";
+
 import TaskModels from "@/models/task.models";
+
+import draggableComponent from "vuedraggable";
 
 export default defineComponent({
   name: "CardItems",
-  components: { CardItem },
+  components: { draggableComponent },
   props: {
     tasks: {
       type: Array as PropType<TaskModels[]>,
       required: true,
     },
   },
-  methods: {
-    startDrag(event: DragEvent, itemTask: any) {
-      console.log("1 emit startDrag", event, itemTask);
-      this.$emit("startDrag", event, itemTask);
-    },
-  },
 });
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.task {
+  width: 250px;
+  margin: 10px auto;
+
+  &__title {
+    border-radius: 4px 4px 0 0;
+    background-color: antiquewhite;
+    padding: 5px;
+  }
+  &__body {
+    background-color: #42b983;
+    padding: 5px;
+  }
+  &__status {
+    padding: 4px;
+    background-color: #1390e5;
+    border-radius: 0 0 4px 4px;
+    color: #fff;
+  }
+}
+.list-group {
+  min-height: 100px;
+}
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
+}
+
+.flip-list-move {
+  transition: transform 0.5s;
+}
+.no-move {
+  transition: transform 0s;
+}
+</style>
