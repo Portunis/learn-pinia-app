@@ -21,9 +21,9 @@
         <div class="task">
           <div class="task__title">{{ element.title }}</div>
           <div class="task__body">
-            <div class="task__body-description">
+            <p class="task__body-description">
               {{ element.description.substring(0, 150) + ".." }}
-            </div>
+            </p>
           </div>
           <div class="task__status">
             {{ element.level }}
@@ -61,12 +61,16 @@ export default defineComponent({
 
   &__title {
     border-radius: 4px 4px 0 0;
-    background-color: antiquewhite;
+    background-color: #fff;
     padding: 5px;
   }
   &__body {
-    background-color: #42b983;
+    background-color: #fff;
     padding: 5px;
+  }
+  &__body-description {
+    max-width: 250px;
+    word-wrap: break-word;
   }
   &__status {
     padding: 4px;

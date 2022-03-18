@@ -12,6 +12,12 @@ export const useStore = defineStore("main", {
     createBoards(payload: BoardModels): void {
       const saveBoard = this.boards || [];
       saveBoard.push(payload);
+      this.addBoardsLocalStorage(saveBoard);
+      console.log("board", saveBoard);
+    },
+    addBoardsLocalStorage(payload: BoardModels[]): void {
+      console.log("local", payload);
+      localStorage.setItem("saveBoard", JSON.stringify(payload));
     },
     createTasks(payload: TaskModels): void {
       const getBoard = this.boards.filter(

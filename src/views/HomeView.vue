@@ -32,7 +32,7 @@
       <UiModal v-model:show="taskModalVisible">
         <div class="modal">
           <form class="modal-form">
-            <UiInput placeholder="Name ash" v-model="taskForm.title" />
+            <UiInput placeholder="Name task" v-model="taskForm.title" />
             <UiInput placeholder="description" v-model="taskForm.description" />
             <UiSelect v-model="taskForm.level" />
           </form>
@@ -47,19 +47,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import CardItems from "@/components/Card/CardItems.vue";
 import UiButton from "@/components/UI/button/uiButton.vue";
-
-import draggableComponent from "vuedraggable";
 import UiModal from "@/components/UI/modal/uiModal.vue";
 import UiInput from "@/components/UI/input/uiInput.vue";
-import { mapActions, mapState } from "pinia";
-import { useStore } from "@/store";
-import BoardModels from "@/models/board.models";
-import TaskModels from "@/models/task.models";
 import UiNotification from "@/components/UI/notification/uiNotification.vue";
 import UiSelect from "@/components/UI/select/uiSelect.vue";
+
+import { defineComponent } from "vue";
+import { mapActions, mapState } from "pinia";
+import { useStore } from "@/store";
+
+import BoardModels from "@/models/board.models";
+import TaskModels from "@/models/task.models";
 
 export default defineComponent({
   name: "HomeView",
@@ -76,7 +76,6 @@ export default defineComponent({
       boardModalVisible: false,
       taskModalVisible: false,
       notificationTask: false,
-      idBoard: Number,
       boardForm: {
         id: Date.now(),
         name: "",
