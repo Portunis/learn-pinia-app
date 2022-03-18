@@ -7,8 +7,13 @@
       </div>
       <div class="container">
         <div class="task" v-for="board in boards" :key="board.name">
-          <h2>{{ board.name }}</h2>
-          <UiButton @click="taskModalAdd">add task</UiButton>
+          <div>
+            <h2>{{ board.name }}</h2>
+            <UiButton class="task__button" @click="taskModalAdd(board)"
+              >+</UiButton
+            >
+          </div>
+
           <CardItems :tasks="board.tasks" />
         </div>
       </div>
@@ -61,13 +66,17 @@ export default defineComponent({
       boardModalVisible: false,
       taskModalVisible: false,
       notificationTask: false,
+      idBoard: Number,
       boardForm: {
+        id: Date.now(),
         name: "",
         tasks: [],
       },
       taskForm: {
+        id: Date.now(),
         title: "",
         description: "",
+        idBoard: 2,
       },
     };
   },
@@ -88,7 +97,8 @@ export default defineComponent({
       this.boardModalVisible = true;
       console.log("модал");
     },
-    taskModalAdd() {
+    taskModalAdd(board: BoardModels) {
+      this.taskForm.idBoard = board.id;
       this.taskModalVisible = true;
       console.log("модал");
     },
@@ -100,22 +110,25 @@ export default defineComponent({
       this.createBoards(boardForm);
       this.boardModalVisible = false;
       this.boardForm = {
+        id: Date.now(),
         name: "",
         tasks: [],
       };
     },
     createTask(taskForm: TaskModels) {
+      console.log("taskform", taskForm);
       this.createTasks(taskForm);
       this.taskModalVisible = false;
       this.taskForm = {
+        id: Date.now(),
         title: "",
         description: "",
+        idBoard: 1,
       };
       this.notificationTask = true;
       setTimeout(() => {
         this.notificationTask = false;
       }, 5000);
-      console.log(taskForm);
     },
     // startDrag(evt: any, item: any) {
     //   console.log("startDrag", typeof evt, item);
@@ -147,9 +160,27 @@ export default defineComponent({
   flex-direction: column;
 }
 .container {
-  display: flex;
-  justify-content: space-evenly;
+  display: grid;
+  justify-items: center;
+  grid-template-columns: repeat(4, 1fr);
   width: 1400px;
   margin: 0 auto;
+}
+.task {
+  border-radius: 4px;
+  padding: 10px;
+  min-width: 250px;
+  height: auto;
+  background-size: cover;
+  background: rgb(125, 134, 144);
+  background: linear-gradient(
+    90deg,
+    rgba(125, 134, 144, 1) 25%,
+    rgba(115, 93, 103, 1) 86%
+  );
+  &__button {
+    padding: 10px 15px;
+    margin: 10px;
+  }
 }
 </style>

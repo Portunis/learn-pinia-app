@@ -10,7 +10,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import CardItem from "@/components/Card/Carditem.vue";
-import ListModels from "@/models/board.models";
 import TaskModels from "@/models/task.models";
 
 export default defineComponent({

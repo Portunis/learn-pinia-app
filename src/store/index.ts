@@ -14,7 +14,11 @@ export const useStore = defineStore("main", {
       saveBoard.push(payload);
     },
     createTasks(payload: TaskModels): void {
-      console.log("pinia task", payload);
+      const getBoard = this.boards.filter(
+        (item) => item.id === payload.idBoard
+      );
+      const saveTask = getBoard[0].tasks || [];
+      saveTask.push(payload);
     },
   },
 });
