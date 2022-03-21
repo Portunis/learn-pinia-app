@@ -133,6 +133,11 @@ export default defineComponent({
 }
 .list-group {
   min-height: 100px;
+  max-height: 400px;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    width: 0;
+  }
 }
 .ghost {
   opacity: 0.5;

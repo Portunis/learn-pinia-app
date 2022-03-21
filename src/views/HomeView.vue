@@ -249,18 +249,18 @@ export default defineComponent({
 }
 
 .task {
+  overflow: hidden;
   margin-bottom: 10px;
   border-radius: 4px;
   padding: 10px;
   min-width: 250px;
-  height: auto;
-  background-size: cover;
-  background: rgb(125, 134, 144);
+  max-height: 500px;
   background: linear-gradient(
     90deg,
     rgba(125, 134, 144, 1) 25%,
     rgba(115, 93, 103, 1) 86%
   );
+
   &__header {
     display: flex;
     align-items: center;
