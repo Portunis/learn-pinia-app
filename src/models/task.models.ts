@@ -4,4 +4,9 @@ export default interface TaskModels {
   description: string;
   level: string;
   idBoard: number;
+  timeStart?: number;
+  timeEnd?: number;
+  startTask?: boolean;
+  endTask?: boolean;
+  complete?: boolean;
 }

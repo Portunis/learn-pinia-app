@@ -19,6 +19,15 @@
     <template #item="{ element }">
       <div class="list-group-item">
         <div class="task">
+          <div class="task__created" v-if="element.startTask">Created</div>
+          <div
+            class="task__active"
+            v-if="!element.complete && !element.startTask"
+          >
+            Active
+          </div>
+          <div class="task__complete" v-if="element.complete">Complete</div>
+          <div class="task__modal" @click="getTask(element)">+</div>
           <div class="task__title">{{ element.title }}</div>
           <div class="task__body">
             <p class="task__body-description">
@@ -51,14 +60,47 @@ export default defineComponent({
       required: true,
     },
   },
+  methods: {
+    getTask(element: TaskModels) {
+      this.$emit("getTask", element);
+    },
+  },
 });
 </script>
 
 <style lang="scss" scoped>
 .task {
+  position: relative;
   width: 250px;
   margin: 10px auto;
 
+  &__active {
+    position: absolute;
+    border-radius: 4px;
+    background: #5967ff;
+    top: 4px;
+    left: 5px;
+    padding: 5px 7px;
+    color: #fff;
+  }
+  &__created {
+    position: absolute;
+    border-radius: 4px;
+    background: #68686b;
+    top: 4px;
+    left: 5px;
+    padding: 5px 7px;
+    color: #fff;
+  }
+  &__complete {
+    position: absolute;
+    border-radius: 4px;
+    background: #60ce47;
+    top: 4px;
+    left: 5px;
+    padding: 5px 7px;
+    color: #fff;
+  }
   &__title {
     border-radius: 4px 4px 0 0;
     background-color: #fff;
@@ -77,6 +119,16 @@ export default defineComponent({
     background-color: #1390e5;
     border-radius: 0 0 4px 4px;
     color: #fff;
+  }
+  &__modal {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding: 3px 7px;
+    background: #42b983;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
   }
 }
 .list-group {
