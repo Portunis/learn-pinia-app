@@ -1,7 +1,6 @@
 <template>
   <div>
     <h2>TODO</h2>
-    {{ task }}
     <div class="todo">
       <div>
         <UiButton @click="boardModalAdd">Добавить</UiButton>
@@ -9,10 +8,13 @@
       <div class="container">
         <div class="task" v-for="board in boards" :key="board.name">
           <div>
-            <h2>{{ board.name }}</h2>
-            <UiButton class="task__button" @click="taskModalAdd(board)"
-              >+</UiButton
-            >
+            <div class="task__header">
+              <h2 class="task__header-title">{{ board.name }}</h2>
+              <h2 class="task__header-count">{{ board.tasks.length }}</h2>
+              <UiButton class="task__button" @click="taskModalAdd(board)"
+                >+</UiButton
+              >
+            </div>
           </div>
 
           <CardItems :tasks="board.tasks" @getTask="taskModal" />
@@ -65,7 +67,11 @@
         <div class="modal">
           <form class="modal-form">
             <UiInput placeholder="Name task" v-model="taskForm.title" />
-            <UiInput placeholder="description" v-model="taskForm.description" />
+            <UiInput
+              type="textarea"
+              placeholder="description"
+              v-model="taskForm.description"
+            />
             <UiSelect v-model="taskForm.level" />
           </form>
           <UiButton @click.prevent="createTask(taskForm)">Create</UiButton>
@@ -138,7 +144,7 @@ export default defineComponent({
     }),
   },
   methods: {
-    dateTime(payload: string) {
+    dateTime(payload: number) {
       return moment(payload).format("h:mm:ss DD-MM-YYYY");
     },
     boardModalAdd() {
@@ -255,9 +261,22 @@ export default defineComponent({
     rgba(125, 134, 144, 1) 25%,
     rgba(115, 93, 103, 1) 86%
   );
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  &__header-title {
+    margin: 5px;
+  }
+  &__header-count {
+    padding: 5px 10px;
+    background: #fff;
+    border-radius: 5px;
+  }
   &__button {
     padding: 10px 15px;
-    margin: 10px;
+    margin: 10px 0 10px 73px;
   }
 }
 .taskBody {
