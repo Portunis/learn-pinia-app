@@ -8,27 +8,22 @@
       type: 'transition-group',
       name: !drag ? 'flip-list' : null,
     }"
-    v-bind="dragOptions"
     item-key="id"
     class="list-group"
     ghost-class="ghost"
-    :move="checkMove"
     @start="dragging = true"
     @end="dragging = false"
   >
     <template #item="{ element }">
       <div class="list-group-item">
         <div class="task">
-          <div class="task__created" v-if="element.startTask">Created</div>
-          <div
-            class="task__active"
-            v-if="!element.complete && !element.startTask"
-          >
-            Active
+          <div class="task__header">
+            <UiStatus :status="element.isStatus" />
+            <button class="task__button-modal" @click="getTask(element)">
+              +
+            </button>
+            <div class="task__title">{{ element.title }}</div>
           </div>
-          <div class="task__complete" v-if="element.complete">Complete</div>
-          <div class="task__modal" @click="getTask(element)">+</div>
-          <div class="task__title">{{ element.title }}</div>
           <div class="task__body">
             <p class="task__body-description">
               {{ element.description.substring(0, 150) + ".." }}
@@ -47,21 +42,33 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 
-import TaskModels from "@/models/task.models";
+import TaskModel from "@/models/task.model";
 
 import draggableComponent from "vuedraggable";
+import UiStatus from "@/components/UI/status/uiStatus.vue";
 
 export default defineComponent({
   name: "CardItems",
-  components: { draggableComponent },
+  components: { UiStatus, draggableComponent },
+  data() {
+    return {
+      dragging: false,
+      drag: false,
+    };
+  },
   props: {
     tasks: {
-      type: Array as PropType<TaskModels[]>,
+      type: Array as PropType<TaskModel[]>,
       required: true,
     },
   },
+
   methods: {
-    getTask(element: TaskModels) {
+    /**
+     * Передача element в компонент  HomeView
+     * @param element - task
+     * */
+    getTask(element: TaskModel) {
       this.$emit("getTask", element);
     },
   },
@@ -74,32 +81,8 @@ export default defineComponent({
   width: 250px;
   margin: 10px auto;
 
-  &__active {
-    position: absolute;
-    border-radius: 4px;
-    background: #5967ff;
-    top: 4px;
-    left: 5px;
-    padding: 5px 7px;
-    color: #fff;
-  }
-  &__created {
-    position: absolute;
-    border-radius: 4px;
-    background: #68686b;
-    top: 4px;
-    left: 5px;
-    padding: 5px 7px;
-    color: #fff;
-  }
-  &__complete {
-    position: absolute;
-    border-radius: 4px;
-    background: #60ce47;
-    top: 4px;
-    left: 5px;
-    padding: 5px 7px;
-    color: #fff;
+  &__header {
+    display: flex;
   }
   &__title {
     border-radius: 4px 4px 0 0;
@@ -120,7 +103,7 @@ export default defineComponent({
     border-radius: 0 0 4px 4px;
     color: #fff;
   }
-  &__modal {
+  &__button-modal {
     position: absolute;
     top: 5px;
     right: 5px;
@@ -129,6 +112,7 @@ export default defineComponent({
     border-radius: 5px;
     color: #fff;
     cursor: pointer;
+    border: none;
   }
 }
 .list-group {

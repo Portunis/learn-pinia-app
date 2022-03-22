@@ -11,8 +11,9 @@ export default defineComponent({
     modelValue: [String, Number],
   },
   methods: {
-    updateInput(event: any) {
-      this.$emit("update:modelValue", event.target.value);
+    updateInput(event: InputEvent) {
+      const eventTarget = event.target as HTMLInputElement;
+      this.$emit("update:modelValue", eventTarget.value);
     },
   },
 });
@@ -33,10 +34,6 @@ export default defineComponent({
   border: 1px solid #1390e5;
 }
 .input[type="password"]:focus {
-  background: rgba(197, 228, 249, 0.3);
-  border: 1px solid #1390e5;
-}
-.input.active {
   background: rgba(197, 228, 249, 0.3);
   border: 1px solid #1390e5;
 }

@@ -23,7 +23,7 @@ export default {
   line-height: 24px;
   color: #ffffff;
   padding: 15px 60px;
-  margin: 40px 0;
+  margin: 40px 10px;
 }
 @media screen and (max-width: 320px) {
   .button {

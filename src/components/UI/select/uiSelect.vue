@@ -13,8 +13,9 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "uiSelect",
   methods: {
-    changeOption(event: any) {
-      this.$emit("update:modelValue", event.target.value);
+    changeOption(event: Event) {
+      const eventTarget = event.target as HTMLSelectElement;
+      this.$emit("update:modelValue", eventTarget.value);
     },
   },
 });
@@ -28,8 +29,6 @@ export default defineComponent({
   border-radius: 10px;
   margin: 0 auto;
   position: relative;
-}
-select {
   font-family: Roboto, sans-serif;
   font-style: normal;
   font-weight: normal;

@@ -1,4 +1,4 @@
-export default interface TaskModels {
+export default interface TaskModel {
   id: number;
   title: string;
   description: string;
@@ -6,7 +6,5 @@ export default interface TaskModels {
   idBoard: number;
   timeStart?: number;
   timeEnd?: number;
-  startTask?: boolean;
-  endTask?: boolean;
-  complete?: boolean;
+  isStatus: string;
 }

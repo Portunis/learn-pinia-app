@@ -6,7 +6,7 @@
         <UiButton @click="boardModalAdd">Добавить</UiButton>
       </div>
       <div class="container">
-        <div class="task" v-for="board in boards" :key="board.name">
+        <div class="task" v-for="board in boards" :key="board.id">
           <div>
             <div class="task__header">
               <h2 class="task__header-title">{{ board.name }}</h2>
@@ -22,64 +22,24 @@
       </div>
     </div>
     <transition name="notification">
-      <UiModal v-model:show="taskViewModal">
-        <div class="modal">
-          <div class="taskBody">
-            <p>#{{ task.id }}</p>
-
-            <p>Task: {{ task.title }}</p>
-            <p>Description: {{ task.description }}</p>
-            <p>Level: {{ task.level }}</p>
-            <p v-if="task.timeStart && task.timeStart > 0">
-              Start: {{ dateTime(task.timeStart) }}
-            </p>
-            <UiButton
-              v-if="task.startTask && !task.timeEnd"
-              @click="startTask(task)"
-              >Начать</UiButton
-            >
-            <UiButton v-if="task.endTask" @click="endTask(task)"
-              >Закончить</UiButton
-            >
-            <UiButton v-if="task.timeEnd"
-              >Tasks выполнен в {{ dateTime(task.timeEnd) }}</UiButton
-            >
-            <div>
-              <UiButton @click="deleteTasks(task)">Удалить</UiButton>
-              <UiButton @click="editTasks(task)">Изменить</UiButton>
-            </div>
-          </div>
-        </div>
+      <UiModal v-model:show="taskBodyModal">
+        <TaskModal :task="task" @startTask="startTask" @endTask="endTask" />
       </UiModal>
     </transition>
     <transition name="notification">
-      <UiModal v-model:show="boardModalVisible">
-        <div class="modal">
-          <form class="modal-form">
-            <UiInput placeholder="Name board" v-model="boardForm.name" />
-          </form>
-          <UiButton @click.prevent="createBoard(boardForm)">Create</UiButton>
-        </div>
+      <UiModal v-model:show="boardCreateModal">
+        <CreateBoard @createBoard="createBoard" />
       </UiModal>
     </transition>
     <transition name="notification">
-      <UiModal v-model:show="taskModalVisible">
-        <div class="modal">
-          <form class="modal-form">
-            <UiInput placeholder="Name task" v-model="taskForm.title" />
-            <UiInput
-              type="textarea"
-              placeholder="description"
-              v-model="taskForm.description"
-            />
-            <UiSelect v-model="taskForm.level" />
-          </form>
-          <UiButton @click.prevent="createTask(taskForm)">Create</UiButton>
-        </div>
+      <UiModal v-model:show="taskCreateModal">
+        <CreateTask @createTask="createTask" :idBoard="idBoard" />
       </UiModal>
     </transition>
     <transition name="notification">
-      <UiNotification v-if="notificationTask">task added</UiNotification>
+      <UiNotification v-if="notificationTask"
+        >Вы добавили новую задачу</UiNotification
+      >
     </transition>
   </div>
 </template>
@@ -88,135 +48,128 @@
 import CardItems from "@/components/Card/CardItems.vue";
 import UiButton from "@/components/UI/button/uiButton.vue";
 import UiModal from "@/components/UI/modal/uiModal.vue";
-import UiInput from "@/components/UI/input/uiInput.vue";
+
 import UiNotification from "@/components/UI/notification/uiNotification.vue";
-import UiSelect from "@/components/UI/select/uiSelect.vue";
 
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useStore } from "@/store";
+import { useTaskStore } from "@/store/task";
 
-import moment from "moment";
+import BoardModel from "@/models/board.model";
+import TaskModel from "@/models/task.model";
 
-import BoardModels from "@/models/board.models";
-import TaskModels from "@/models/task.models";
+import TaskModal from "@/components/modals/task/taskModal.vue";
+import CreateBoard from "@/components/modals/board/createBoard.vue";
+import CreateTask from "@/components/modals/task/createTask.vue";
 
 export default defineComponent({
   name: "HomeView",
   components: {
-    UiSelect,
+    CreateTask,
+    CreateBoard,
+    TaskModal,
     UiNotification,
-    UiInput,
     UiModal,
     CardItems,
     UiButton,
   },
   data() {
     return {
-      taskViewModal: false,
-      boardModalVisible: false,
-      taskModalVisible: false,
+      taskBodyModal: false,
+      boardCreateModal: false,
+      taskCreateModal: false,
       notificationTask: false,
-      currentTime: 0,
-      task: [],
-      boardForm: {
-        id: Date.now(),
-        name: "",
-        tasks: [],
-      },
-      taskForm: {
-        id: Date.now(),
-        title: "",
-        description: "",
-        level: "",
-        idBoard: 2,
-        startTask: true,
-      },
+      task: {} as TaskModel,
+      idBoard: 0,
     };
   },
   created() {
-    this.updateTask();
+    this.updateBoards();
   },
-
   computed: {
     ...mapState(useStore, {
       boards: "boards",
     }),
   },
   methods: {
-    dateTime(payload: number) {
-      return moment(payload).format("h:mm:ss DD-MM-YYYY");
+    /**
+     * Открывает модальное окно для создания board
+     * */
+    boardModalAdd(): void {
+      this.boardCreateModal = true;
     },
-    boardModalAdd() {
-      this.boardModalVisible = true;
-      console.log("модал");
-    },
-    taskModalAdd(payload: BoardModels) {
-      this.taskForm.idBoard = payload.id;
-      this.taskModalVisible = true;
-      console.log("taskModalAdd", payload);
+    /**
+     * Добавляет id доски в переменную idBoard
+     * @param payload - board.id
+     *  */
+    taskModalAdd(payload: BoardModel): void {
+      this.idBoard = payload.id;
+      this.taskCreateModal = true;
     },
     ...mapActions(useStore, {
       createBoards: "createBoards",
+      updateBoards: "getLocalStorage",
+    }),
+    ...mapActions(useTaskStore, {
       createTasks: "createTasks",
       deleteTask: "deleteTask",
       editTask: "editTask",
-      updateTask: "getLocalStorage",
     }),
-    createBoard(payload: BoardModels) {
+    /**
+     * Создание новой доски для task
+     * @param payload - boarForm
+     * */
+    createBoard(payload: BoardModel): void {
       this.createBoards(payload);
-      this.boardModalVisible = false;
-      this.boardForm = {
-        id: Date.now(),
-        name: "",
-        tasks: [],
-      };
+      this.boardCreateModal = false;
     },
-    createTask(payload: TaskModels) {
+    /**
+     * Создание нового task
+     * @param payload - taskForm
+     * */
+    createTask(payload: TaskModel): void {
       this.createTasks(payload);
-      this.taskModalVisible = false;
-      this.taskForm = {
-        id: Date.now(),
-        title: "",
-        description: "",
-        level: "",
-        idBoard: 1,
-        startTask: true,
-      };
+      this.taskCreateModal = false;
       this.notificationTask = true;
       setTimeout(() => {
         this.notificationTask = false;
       }, 5000);
     },
-    taskModal(payload: []) {
-      console.log("taskModal", payload);
+    /**
+     * Передаем данные в массив task  и открываем модальное окно с подробной информацией о выбранном task
+     * @param payload - task
+     * */
+    taskModal(payload: TaskModel): void {
       this.task = payload;
-      this.taskViewModal = true;
+      this.taskBodyModal = true;
     },
-    startTask(payload: TaskModels) {
+    /**
+     * Меняет статус task.isStatus = Active
+     * @param payload - task
+     * */
+    startTask(payload: TaskModel): void {
       payload.timeStart = Date.now();
-      payload.endTask = true;
-      payload.startTask = false;
+      payload.isStatus = "Active";
       this.editTask(payload);
-      console.log("startTask", payload);
     },
-    endTask(payload: TaskModels) {
+    /**
+     * Меняет статус task.isStatus = Completed
+     * @param payload - task
+     * */
+    endTask(payload: TaskModel): void {
       payload.timeEnd = Date.now();
-      payload.startTask = true;
-      payload.endTask = false;
-      payload.complete = true;
-
+      payload.isStatus = "Completed";
       this.editTask(payload);
     },
-    deleteTasks(payload: TaskModels) {
-      this.deleteTask(payload);
-      this.taskViewModal = false;
-      this.task = [];
-    },
-    editTasks(payload: TaskModels) {
-      this.editTask(payload);
-      console.log(payload);
-    },
+    // deleteTasks(payload: TaskModel): void {
+    //   this.deleteTask(payload);
+    //   this.boardCreateModal = false;
+    //   this.task = {} as TaskModel;
+    // },
+    // editTasks(payload: TaskModel): void {
+    //   this.editTask(payload);
+    // },
   },
 });
 </script>
@@ -278,9 +231,5 @@ export default defineComponent({
     padding: 10px 15px;
     margin: 10px 0 10px 73px;
   }
-}
-.taskBody {
-  display: flex;
-  flex-direction: column;
 }
 </style>
