@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { useStore } from "@/store/index";
 import TaskModel from "@/models/task.model";
-
+import Tag from "@/models/tag.model";
 export const useTaskStore = defineStore("task", {
   actions: {
     /**
@@ -15,6 +15,20 @@ export const useTaskStore = defineStore("task", {
       );
       const saveTask = getBoard[0].tasks;
       saveTask.push(payload);
+      localStorage.setItem("saveBoard", JSON.stringify(board.boards));
+    },
+    /**
+     * Создает новый тэг у задачи
+     * @param tagForm - форма с данными
+     * @param idBoard - id доски
+     */
+    createTaskTag(tagForm: Tag, idBoard: number): void {
+      const board = useStore();
+      const getBoard = board.boards.filter((item) => item.id === idBoard);
+      const getTask = getBoard[0].tasks;
+      const tasks = getTask.filter((item) => item.id === tagForm.idTask);
+      const saveTag = tasks[0].tags || [];
+      saveTag.push(tagForm);
       localStorage.setItem("saveBoard", JSON.stringify(board.boards));
     },
     /**

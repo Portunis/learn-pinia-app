@@ -1,26 +1,14 @@
 <template>
-  <div class="status" :class="isStatus">{{ status }}</div>
+  <div class="status" :class="status">{{ status }}</div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Badge } from "@/typescript/enum/badge";
 
 export default defineComponent({
-  name: "uiStatus",
+  name: "BadgeStatus",
   props: {
     status: String,
-  },
-  computed: {
-    isStatus(): string {
-      return this.status == Badge.Completed
-        ? "completed"
-        : this.status === Badge.Active
-        ? "active"
-        : this.status === Badge.Created
-        ? "created"
-        : "";
-    },
   },
 });
 </script>

@@ -12,8 +12,8 @@ export default {
 
 <style lang="scss" scoped>
 .button {
-  background: #1390e5;
-  border-radius: 10px;
+  background: #0095ff;
+  border-radius: 20px;
   border: none;
   cursor: pointer;
   font-family: Roboto, sans-serif;

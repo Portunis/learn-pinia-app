@@ -17,21 +17,37 @@
     <template #item="{ element }">
       <div class="list-group-item">
         <div class="task">
-          <div class="task__header">
-            <UiStatus :status="element.isStatus" />
-            <button class="task__button-modal" @click="getTask(element)">
-              +
-            </button>
-            <div class="task__title">{{ element.title }}</div>
-          </div>
-          <div class="task__body">
-            <p class="task__body-description">
-              {{ element.description.substring(0, 150) + ".." }}
-            </p>
-          </div>
-          <div class="task__status">
-            {{ element.level }}
-            <!-- В отдельный компонент  -->
+          <div class="task__container">
+            <div class="task__header">
+              <div class="task__title">{{ element.title }}</div>
+              <div class="task__option" @click="getTask(element)">...</div>
+            </div>
+            <div class="task__body">
+              <div class="task__description">
+                {{ element.description }}
+              </div>
+            </div>
+            <div class="task__footer">
+              <div class="tags">
+                <TagComponent v-for="tag in element.tags" :key="tag.id">{{
+                  tag.name
+                }}</TagComponent>
+                <TagComponent v-if="tagForm.idTask === element.id"
+                  ><input
+                    class="tags__input"
+                    v-model="tagForm.name"
+                    @keydown.enter="createTag"
+                /></TagComponent>
+                <p class="tags__button" @click="getIdTask(element)">Add tags</p>
+              </div>
+              <div class="tools">
+                <div class="tools__people"></div>
+                <div class="tools__utils">
+                  <div class="tools__comment"></div>
+                  <div class="tools__files"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -45,15 +61,25 @@ import { defineComponent, PropType } from "vue";
 import TaskModel from "@/models/task.model";
 
 import draggableComponent from "vuedraggable";
-import UiStatus from "@/components/UI/status/uiStatus.vue";
+import TagComponent from "@/components/UI/tag/TagComponent.vue";
+import { mapActions } from "pinia";
+import { useTaskStore } from "@/store/task";
 
 export default defineComponent({
   name: "CardItems",
-  components: { UiStatus, draggableComponent },
+  components: { TagComponent, draggableComponent },
   data() {
     return {
       dragging: false,
       drag: false,
+      tags: false,
+      inputTag: false,
+      idBoard: 1,
+      tagForm: {
+        id: null as unknown as number,
+        name: "",
+        idTask: null as unknown as number,
+      },
     };
   },
   props: {
@@ -64,12 +90,38 @@ export default defineComponent({
   },
 
   methods: {
+    ...mapActions(useTaskStore, {
+      tagCreate: "createTaskTag",
+    }),
     /**
      * Передача element в компонент  HomeView
      * @param element - task
      * */
-    getTask(element: TaskModel) {
+    getTask(element: TaskModel): void {
       this.$emit("getTask", element);
+    },
+    /**
+     * Определяем id задачи и id доски
+     * @param element - объект содержащий задачу
+     *
+     */
+    getIdTask(element: TaskModel): void {
+      this.tagForm.idTask = element.id;
+      this.inputTag = true;
+      this.idBoard = element.idBoard;
+    },
+    /**
+     * Отправляет форму с данными и передет id доски
+     */
+    createTag(): void {
+      this.inputTag = false;
+      this.tagCreate(this.tagForm, this.idBoard);
+      this.idBoard = 1;
+      this.tagForm = {
+        id: 1,
+        name: "",
+        idTask: 1,
+      };
     },
   },
 });
@@ -77,47 +129,73 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .task {
-  position: relative;
-  width: 250px;
-  margin: 10px auto;
-
+  width: 280px;
+  background: #fff;
+  border-radius: 5px;
+  height: auto;
+  margin-bottom: 20px;
+  &__container {
+    width: 250px;
+    margin: 0 auto;
+  }
   &__header {
     display: flex;
+    align-items: baseline;
+    justify-content: space-between;
   }
   &__title {
-    border-radius: 4px 4px 0 0;
-    background-color: #fff;
-    padding: 5px;
+    overflow: hidden;
+    font-weight: bold;
+    max-width: 200px;
+  }
+  &__option {
+    color: #e5e5e5;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
   }
   &__body {
-    background-color: #fff;
-    padding: 5px;
   }
-  &__body-description {
-    max-width: 250px;
-    word-wrap: break-word;
+  &__description {
+    margin: 25px 0;
+    max-height: 145px;
+    overflow: hidden;
+    text-align: left;
   }
-  &__status {
-    padding: 4px;
-    background-color: #1390e5;
-    border-radius: 0 0 4px 4px;
-    color: #fff;
+  &__footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
-  &__button-modal {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    padding: 3px 7px;
-    background: #42b983;
-    border-radius: 5px;
-    color: #fff;
-    cursor: pointer;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 10px 0;
+
+  &__input {
+    color: #ffffff;
     border: none;
+    border-radius: 20px;
+    width: auto;
+    max-width: 50px;
+    outline: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+  }
+  &__button {
+    cursor: pointer;
+    color: #1390e5;
+    border-radius: 20px;
+    padding: 9px 10px;
+    border: dashed 1px #1390e5;
+    font-size: 12px;
   }
 }
 .list-group {
   min-height: 100px;
-  max-height: 400px;
+  max-height: 900px;
   overflow-y: scroll;
   &::-webkit-scrollbar {
     width: 0;

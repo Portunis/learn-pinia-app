@@ -1,3 +1,5 @@
+import Tag from "@/models/tag.model";
+
 export default interface TaskModel {
   id: number;
   title: string;
@@ -6,5 +8,6 @@ export default interface TaskModel {
   idBoard: number;
   timeStart?: number;
   timeEnd?: number;
-  isStatus: string;
+  status: string;
+  tags?: Array<Tag>;
 }

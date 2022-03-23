@@ -1,55 +1,58 @@
 <template>
-  <div>
-    <h2>TODO</h2>
-    <div class="todo">
-      <div>
-        <UiButton @click="boardModalAdd">Добавить</UiButton>
+  <div class="container">
+    <div class="header">
+      <div class="header__widget">
+        <h2 class="header__title">Active Tasks</h2>
+        <div class="header__info">
+          <BadgeInfo>Filter</BadgeInfo>
+          <BadgeInfo>23.03.2022</BadgeInfo>
+          <BadgeInfo @click="boardModalAdd">+</BadgeInfo>
+        </div>
       </div>
-      <div class="container">
-        <div class="task" v-for="board in boards" :key="board.id">
-          <div>
-            <div class="task__header">
-              <h2 class="task__header-title">{{ board.name }}</h2>
-              <h2 class="task__header-count">{{ board.tasks.length }}</h2>
-              <UiButton class="task__button" @click="taskModalAdd(board)"
-                >+</UiButton
-              >
-            </div>
+      <div class="header__nav">menu</div>
+    </div>
+    <div class="boards">
+      <div class="board" v-for="board in boards" :key="board.id">
+        <div class="board__header">
+          <div class="board__title">
+            <div class="status" :style="{ background: board.color }"></div>
+            <h2 class="title">{{ board.name }}</h2>
           </div>
-
+          <div class="board__option" @click="taskModalAdd(board)">...</div>
+        </div>
+        <div class="board__body">
           <CardItems :tasks="board.tasks" @getTask="taskModal" />
         </div>
       </div>
     </div>
-    <transition name="notification">
-      <UiModal v-model:show="taskBodyModal">
-        <TaskModal :task="task" @startTask="startTask" @endTask="endTask" />
-      </UiModal>
-    </transition>
-    <transition name="notification">
-      <UiModal v-model:show="boardCreateModal">
-        <CreateBoard @createBoard="createBoard" />
-      </UiModal>
-    </transition>
-    <transition name="notification">
-      <UiModal v-model:show="taskCreateModal">
-        <CreateTask @createTask="createTask" :idBoard="idBoard" />
-      </UiModal>
-    </transition>
-    <transition name="notification">
-      <UiNotification v-if="notificationTask"
-        >Вы добавили новую задачу</UiNotification
-      >
-    </transition>
   </div>
+  <transition name="notification">
+    <UiModal v-model:show="taskBodyModal">
+      <TaskModal :task="task" @startTask="startTask" @endTask="endTask" />
+    </UiModal>
+  </transition>
+  <transition name="notification">
+    <UiModal v-model:show="boardCreateModal">
+      <CreateBoard @createBoard="createBoard" />
+    </UiModal>
+  </transition>
+  <transition name="notification">
+    <UiModal v-model:show="taskCreateModal">
+      <CreateTask @createTask="createTask" :idBoard="idBoard" />
+    </UiModal>
+  </transition>
+  <transition name="notification">
+    <UiNotification v-if="notificationTask"
+      >Вы добавили новую задачу</UiNotification
+    >
+  </transition>
 </template>
 
 <script lang="ts">
 import CardItems from "@/components/Card/CardItems.vue";
-import UiButton from "@/components/UI/button/uiButton.vue";
-import UiModal from "@/components/UI/modal/uiModal.vue";
+import UiModal from "@/components/UI/modal/UiModal.vue";
 
-import UiNotification from "@/components/UI/notification/uiNotification.vue";
+import UiNotification from "@/components/UI/notification/UiNotification.vue";
 
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
@@ -59,20 +62,21 @@ import { useTaskStore } from "@/store/task";
 import BoardModel from "@/models/board.model";
 import TaskModel from "@/models/task.model";
 
-import TaskModal from "@/components/modals/task/taskModal.vue";
-import CreateBoard from "@/components/modals/board/createBoard.vue";
-import CreateTask from "@/components/modals/task/createTask.vue";
+import TaskModal from "@/components/modals/task/TaskModal.vue";
+import CreateBoard from "@/components/modals/board/CreateBoard.vue";
+import CreateTask from "@/components/modals/task/CreateTask.vue";
+import BadgeInfo from "@/components/UI/badge/BadgeInfo.vue";
 
 export default defineComponent({
   name: "HomeView",
   components: {
+    BadgeInfo,
     CreateTask,
     CreateBoard,
     TaskModal,
     UiNotification,
     UiModal,
     CardItems,
-    UiButton,
   },
   data() {
     return {
@@ -80,6 +84,7 @@ export default defineComponent({
       boardCreateModal: false,
       taskCreateModal: false,
       notificationTask: false,
+
       task: {} as TaskModel,
       idBoard: 0,
     };
@@ -150,7 +155,7 @@ export default defineComponent({
      * */
     startTask(payload: TaskModel): void {
       payload.timeStart = Date.now();
-      payload.isStatus = "Active";
+      payload.status = "active";
       this.editTask(payload);
     },
     /**
@@ -159,7 +164,7 @@ export default defineComponent({
      * */
     endTask(payload: TaskModel): void {
       payload.timeEnd = Date.now();
-      payload.isStatus = "Completed";
+      payload.status = "completed";
       this.editTask(payload);
     },
     // deleteTasks(payload: TaskModel): void {
@@ -193,43 +198,74 @@ export default defineComponent({
   flex-direction: column;
 }
 .container {
-  display: grid;
-  justify-items: center;
-  align-items: start;
-  grid-template-columns: repeat(4, 1fr);
   width: 1400px;
   margin: 0 auto;
 }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  &__title {
+    text-align: left;
+  }
+  &__info {
+    display: flex;
+  }
+}
+.boards {
+  display: flex;
+  overflow-x: scroll;
+  &::-webkit-scrollbar {
+    width: 12px;
+  }
 
-.task {
-  overflow: hidden;
-  margin-bottom: 10px;
-  border-radius: 4px;
-  padding: 10px;
-  min-width: 250px;
-  max-height: 500px;
-  background: linear-gradient(
-    90deg,
-    rgba(125, 134, 144, 1) 25%,
-    rgba(115, 93, 103, 1) 86%
-  );
+  &::-webkit-scrollbar-track {
+    background: none;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #e5e5e5;
+    border-radius: 20px;
+  }
+}
+
+.status {
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+
+  margin-right: 10px;
+}
+.title {
+  max-width: 230px;
+}
+.board {
+  width: 300px;
+  display: block;
+  margin: 60px 60px 20px 0;
 
   &__header {
     display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  &__body {
+    width: 280px;
+    background: #e5e5e5;
+    border-radius: 10px;
+    height: auto;
+    padding: 10px;
+  }
+  &__title {
+    display: flex;
     align-items: center;
-    justify-content: flex-start;
+    overflow: hidden;
   }
-  &__header-title {
-    margin: 5px;
-  }
-  &__header-count {
-    padding: 5px 10px;
-    background: #fff;
-    border-radius: 5px;
-  }
-  &__button {
-    padding: 10px 15px;
-    margin: 10px 0 10px 73px;
+  &__option {
+    color: #e5e5e5;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 export enum Badge {
-  Active = "Active",
-  Created = "Created",
-  Completed = "Completed",
+  Active = "active",
+  Created = "created",
+  Completed = "completed",
 }
