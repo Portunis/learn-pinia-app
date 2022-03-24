@@ -1,28 +1,16 @@
 <template>
-  <div class="container">
-    <div class="header">
-      <div class="header__widget">
-        <h2 class="header__title">Active Tasks</h2>
-        <div class="header__info">
-          <BadgeInfo>Filter</BadgeInfo>
-          <BadgeInfo>23.03.2022</BadgeInfo>
-          <BadgeInfo @click="boardModalAdd">+</BadgeInfo>
+  <BadgeInfo class="badge-button" @click="boardModalAdd">+</BadgeInfo>
+  <div class="boards">
+    <div class="board" v-for="board in boards" :key="board.id">
+      <div class="board__header">
+        <div class="board__title">
+          <div class="status" :style="{ background: board.color }"></div>
+          <h2 class="title">{{ board.name }}</h2>
         </div>
+        <div class="board__option" @click="taskModalAdd(board)">...</div>
       </div>
-      <div class="header__nav">menu</div>
-    </div>
-    <div class="boards">
-      <div class="board" v-for="board in boards" :key="board.id">
-        <div class="board__header">
-          <div class="board__title">
-            <div class="status" :style="{ background: board.color }"></div>
-            <h2 class="title">{{ board.name }}</h2>
-          </div>
-          <div class="board__option" @click="taskModalAdd(board)">...</div>
-        </div>
-        <div class="board__body">
-          <CardItems :tasks="board.tasks" @getTask="taskModal" />
-        </div>
+      <div class="board__body">
+        <CardItems :tasks="board.tasks" @getTask="taskModal" />
       </div>
     </div>
   </div>
@@ -89,9 +77,6 @@ export default defineComponent({
       idBoard: 0,
     };
   },
-  created() {
-    this.updateBoards();
-  },
   computed: {
     ...mapState(useStore, {
       boards: "boards",
@@ -114,7 +99,6 @@ export default defineComponent({
     },
     ...mapActions(useStore, {
       createBoards: "createBoards",
-      updateBoards: "getLocalStorage",
     }),
     ...mapActions(useTaskStore, {
       createTasks: "createTasks",
@@ -197,20 +181,8 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
 }
-.container {
-  width: 1400px;
-  margin: 0 auto;
-}
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  &__title {
-    text-align: left;
-  }
-  &__info {
-    display: flex;
-  }
+.badge-button {
+  width: 40px;
 }
 .boards {
   display: flex;

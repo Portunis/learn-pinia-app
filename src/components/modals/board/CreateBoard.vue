@@ -4,12 +4,7 @@
       <UiInput placeholder="Введите название" v-model="boardForm.name" />
 
       <p>Выберите цвет</p>
-      <input
-        class="select-color"
-        type="color"
-        placeholder="Введите цвет в формате #ffffff"
-        v-model="boardForm.color"
-      />
+      <input class="select-color" type="color" v-model="boardForm.color" />
     </form>
     <UiButton @click.prevent="emitBoard">Создать</UiButton>
   </div>

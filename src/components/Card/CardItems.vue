@@ -172,6 +172,7 @@ export default defineComponent({
   display: flex;
   flex-wrap: wrap;
   margin: 10px 0;
+  align-items: center;
 
   &__input {
     color: #ffffff;

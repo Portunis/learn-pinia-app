@@ -12,12 +12,14 @@ export default defineComponent({
 <style lang="scss" scoped>
 .tag {
   font-size: 12px;
-  height: 12px;
+  overflow: hidden;
+  min-height: 12px;
+  max-width: 230px;
   cursor: pointer;
-  background-color: rgba(79, 250, 171, 0.99);
+  background-color: rgba(79, 250, 171, 0.59);
   border-radius: 18px;
   margin: 2px;
   padding: 9px;
-  color: #fff;
+  color: rgba(45, 187, 85, 0.99);
 }
 </style>

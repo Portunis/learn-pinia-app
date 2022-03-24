@@ -26,7 +26,6 @@ export const useStore = defineStore("main", {
     },
     /**
      * Получаем boards из localstorage
-     * @return { array } - boards
      * */
     getLocalStorage(): void {
       const data: any = localStorage.getItem("saveBoard"); //поправить any!
@@ -34,7 +33,6 @@ export const useStore = defineStore("main", {
     },
     /**
      * Обновление boards в localstorage
-     * @param { array } - boards
      * */
     updateLocalStorage() {
       localStorage.setItem("saveBoard", JSON.stringify(this.boards));
