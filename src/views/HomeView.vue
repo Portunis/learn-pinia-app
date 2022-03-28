@@ -1,18 +1,36 @@
 <template>
   <BadgeInfo class="badge-button" @click="boardModalAdd">+</BadgeInfo>
   <div class="boards">
-    <div class="board" v-for="board in boards" :key="board.id">
-      <div class="board__header">
-        <div class="board__title">
-          <div class="status" :style="{ background: board.color }"></div>
-          <h2 class="title">{{ board.name }}</h2>
+    <draggableComponent
+      :list="boards"
+      group="board"
+      tag="transition-group"
+      :component-data="{
+        tag: 'div',
+        type: 'transition-group',
+        name: !drag ? 'flip-list' : null,
+      }"
+      item-key="id"
+      class="boards"
+      ghost-class="ghost"
+      @start="dragging = true"
+      @end="dragging = false"
+    >
+      <template #item="{ element }">
+        <div class="board">
+          <div class="board__header">
+            <div class="board__title">
+              <div class="status" :style="{ background: element.color }"></div>
+              <h2 class="title">{{ element.name }}</h2>
+            </div>
+            <div class="board__option" @click="taskModalAdd(element)">...</div>
+          </div>
+          <div class="board__body">
+            <CardItems :tasks="element.tasks" @getTask="taskModal" />
+          </div>
         </div>
-        <div class="board__option" @click="taskModalAdd(board)">...</div>
-      </div>
-      <div class="board__body">
-        <CardItems :tasks="board.tasks" @getTask="taskModal" />
-      </div>
-    </div>
+      </template>
+    </draggableComponent>
   </div>
   <transition name="notification">
     <UiModal v-model:show="taskBodyModal">
@@ -42,6 +60,8 @@ import UiModal from "@/components/UI/modal/UiModal.vue";
 
 import UiNotification from "@/components/UI/notification/UiNotification.vue";
 
+import draggableComponent from "vuedraggable";
+
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useStore } from "@/store";
@@ -65,9 +85,13 @@ export default defineComponent({
     UiNotification,
     UiModal,
     CardItems,
+    draggableComponent,
   },
   data() {
     return {
+      dragging: false,
+      drag: false,
+
       taskBodyModal: false,
       boardCreateModal: false,
       taskCreateModal: false,

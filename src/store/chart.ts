@@ -3,8 +3,6 @@ import { defineStore } from "pinia";
 import { useStore } from "@/store/index";
 import TaskModel from "@/models/task.model";
 
-
-
 export const useChartStore = defineStore("chart", {
   state: () => ({
     tasks: [] as TaskModel[],
@@ -19,7 +17,6 @@ export const useChartStore = defineStore("chart", {
 
       const tasks = boards.map((item) => {
         return item.tasks.map((item) => {
-          console.log("{}", item);
           return item;
         });
       });
