@@ -2,30 +2,60 @@
   <div class="task-container">
     <div class="task">
       <div class="task__header">
-        <BadgeInfo :badge="task.status">{{ task.status }}</BadgeInfo>
+        <BadgeStatus :status="task.status"></BadgeStatus>
         <div class="task__title">
           {{ task.title }}
         </div>
-        <div class="task__option">...</div>
+
+        <div class="task__option">
+          <fa icon="ellipsis" @click="isOptionButton = !isOptionButton" />
+        </div>
+        <div
+          class="task__option-button"
+          v-if="(isOptionButton && isCreated) || isActive"
+        >
+          <transition name="fade" mode="out-in">
+            <fa
+              icon="play"
+              v-if="isCreated"
+              class="icon"
+              @click="startTask(task)"
+            />
+          </transition>
+          <transition name="fade" mode="out-in">
+            <fa
+              icon="stop"
+              v-if="isActive"
+              class="icon"
+              @click="endTask(task)"
+            />
+          </transition>
+        </div>
       </div>
       <div class="task__body">
         {{ task.description }}
       </div>
-      <div class="task__info">
-        <div class="task__time">
-          <p v-if="task.timeStart && task.timeStart > 0">
-            Начало выполнения задачи: {{ dateTime(task.timeStart) }}
-          </p>
+      <transition name="footer-info">
+        <div v-if="isActiveInfo" class="task__info">
+          <h2>Информация</h2>
+          <div class="task__info-body">
+            <div>
+              <p>Задача создана: {{ dateTime(task.created_at) }}</p>
+              <p>Выполнить до: {{ dateTime(task.endTask) }}</p>
+            </div>
+          </div>
         </div>
-        <div class="task__time">
-          <p v-if="isCompleted">
-            Конец выполнения задачи: {{ dateTime(task.timeEnd) }}
-          </p>
-        </div>
-      </div>
+      </transition>
+
       <div class="task__footer">
-        <UiButton v-if="isCreated" @click="startTask(task)">Начать</UiButton>
-        <UiButton v-if="isActive" @click="endTask(task)">Закончить</UiButton>
+        <fa
+          icon="arrow-down"
+          class="icon"
+          :class="{ active: isActiveInfo }"
+          @click="isActiveInfo = !isActiveInfo"
+        />
+        <!--        <UiButton v-if="isCreated" @click="startTask(task)">Начать</UiButton>-->
+        <!--        <UiButton v-if="isActive" @click="endTask(task)">Закончить</UiButton>-->
       </div>
     </div>
   </div>
@@ -39,11 +69,22 @@ import UiButton from "@/components/UI/button/UiButton.vue";
 
 import TaskModel from "@/models/task.model";
 import moment from "moment";
-import BadgeInfo from "@/components/UI/badge/BadgeInfo.vue";
+
+import BadgeStatus from "@/components/UI/badge/BadgeStatus.vue";
 
 export default defineComponent({
   name: "taskModal",
-  components: { BadgeInfo, UiButton },
+  components: { BadgeStatus },
+  data() {
+    return {
+      isOptionButton: false,
+      isActiveInfo: false,
+      modelConfig: {
+        type: "string",
+        mask: "YYYY-MM-DD", // Uses 'iso' if missing
+      },
+    };
+  },
   props: {
     task: {
       type: Object as PropType<TaskModel>,
@@ -68,7 +109,7 @@ export default defineComponent({
      * @return { string } - dateTime - Отформатированное время завершения выполнения task
      * */
     dateTime(payload: number): string {
-      return moment(payload).format("h:mm:ss DD-MM-YYYY");
+      return moment(payload).format("H:mч  DD-MM-YYYYг");
     },
     /**
      * Передает task и запускает функицию startTask в компоненте HomeView
@@ -92,7 +133,14 @@ export default defineComponent({
 .task-container {
   width: 700px;
 }
+.icon {
+  cursor: pointer;
+}
+.icon.active {
+  color: #42b983;
+}
 .task {
+  position: relative;
   &__header {
     display: flex;
     align-items: baseline;
@@ -109,6 +157,19 @@ export default defineComponent({
     font-weight: bold;
     cursor: pointer;
   }
+  &__option-button {
+    position: absolute;
+    right: 0;
+    top: 62px;
+    width: 80px;
+    height: 40px;
+    background: #c8ebfb;
+    border-radius: 5px;
+
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
   &__body {
     margin-top: 20px;
   }
@@ -116,5 +177,24 @@ export default defineComponent({
     display: flex;
     margin: 10px;
   }
+  &__footer {
+    margin: 20px auto;
+  }
+}
+//transition
+
+.footer-info-enter-active,
+.footer-info-leave-active {
+  transition: all 0.25s ease-out;
+}
+
+.footer-info-enter-from {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.footer-info-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
 }
 </style>

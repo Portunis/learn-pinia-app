@@ -10,4 +10,6 @@ export default interface TaskModel {
   timeEnd?: number;
   status: string;
   tags?: Array<Tag>;
+  created_at?: number;
+  endTask: string;
 }

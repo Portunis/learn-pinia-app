@@ -3,6 +3,10 @@ import { useStore } from "@/store/index";
 import TaskModel from "@/models/task.model";
 import Tag from "@/models/tag.model";
 export const useTaskStore = defineStore("task", {
+  state: () => ({
+    tasks: [] as TaskModel[],
+    filteredTasks: [] as TaskModel[],
+  }),
   actions: {
     /**
      * Создает новый task и добавляет их в массив tasks  в объекте boards, обновляет localstorage
@@ -51,6 +55,37 @@ export const useTaskStore = defineStore("task", {
       const board = useStore();
       console.log("editTask", payload);
       board.updateLocalStorage();
+    },
+    /**
+     * Вытаскивает задачи из всех досок
+     */
+    initTask() {
+      const board = useStore();
+      const boards = board.boards;
+
+      const tasks = boards.map((item) => {
+        return item.tasks.map((item) => {
+          return item;
+        });
+      });
+      const test = tasks.flat();
+      this.tasks = test;
+      console.log(test);
+      console.log("sosi");
+    },
+    /**
+     * Фильтрует задачи по дате
+     *
+     * @param payload
+     */
+    filterTasks(payload: string) {
+      this.filteredTasks = [];
+      console.log("piniaFilter", payload);
+      const data = this.tasks.filter((item) => item.endTask === payload);
+      this.filteredTasks = data;
+      if (data !== undefined) {
+        this.filteredTasks = data;
+      }
     },
   },
 });

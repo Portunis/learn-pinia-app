@@ -17,13 +17,13 @@ import { DoughnutChart, BarChart } from "vue-chart-3";
 import TaskModel from "@/models/task.model";
 
 import { mapActions, mapState } from "pinia";
-import { useChartStore } from "@/store/chart";
+import { useTaskStore } from "@/store/task";
 
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
 
-const store = useChartStore();
+const store = useTaskStore();
 
 export default defineComponent({
   name: "ChartView",
@@ -40,7 +40,6 @@ export default defineComponent({
     };
   },
   created() {
-    this.testChart();
     this.countTask();
 
     this.taskChart = [
@@ -48,17 +47,16 @@ export default defineComponent({
       this.activeTasks.length,
       this.completedTasks.length,
     ];
-
-    this.initTask();
+    this.initChart();
   },
   computed: {
-    ...mapState(useChartStore, {
+    ...mapState(useTaskStore, {
       tasks: "tasks",
     }),
   },
   methods: {
-    ...mapActions(useChartStore, {
-      testChart: "chartTest",
+    ...mapActions(useTaskStore, {
+      testChart: "initTask",
     }),
     /**
      * Распределяет задачи по массивам
@@ -79,9 +77,9 @@ export default defineComponent({
         }
       });
     },
-    initTask(): void {
+    initChart(): void {
       this.chartTask = {
-        labels: ["Новые", "В работе", "Выполнено"],
+        labels: ["Created", "Active", "Completed"],
         datasets: [
           {
             label: "Chart Info",
@@ -115,7 +113,7 @@ export default defineComponent({
         datasets: [
           {
             label: "Выполнено задач",
-            data: this.taskChart,
+            data: [65, 59, 80, 81, 56, 55, 40, 50, 60, 30, 20],
             backgroundColor: [
               "rgba(255, 99, 132, 0.2)",
               "rgba(255, 159, 64, 0.2)",
@@ -126,9 +124,9 @@ export default defineComponent({
               "rgba(201, 203, 207, 0.2)",
               "rgb(62,108,201, 0.2)",
               "rgb(182,64,182, 0.2)",
-              "rgb(58,187,79, 0.2)",
+              "rgb(58,187,79,0.2)",
               "rgb(239,212,163, 0.2)",
-              "rgb(241,66,66, 0.2)",
+              "rgb(241,66,66,0.2)",
             ],
             borderColor: [
               "rgb(255, 99, 132)",

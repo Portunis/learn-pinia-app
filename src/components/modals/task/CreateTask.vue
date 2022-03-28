@@ -3,6 +3,11 @@
     <form class="modal-form">
       <UiInput placeholder="Введите название" v-model="taskForm.title" />
       <UiInput placeholder="Описание" v-model="taskForm.description" />
+      <v-date-picker v-model="taskForm.endTask" :model-config="modelConfig">
+        <template v-slot="{ inputValue, inputEvents }">
+          <UiInput :value="inputValue" v-on="inputEvents" />
+        </template>
+      </v-date-picker>
     </form>
     <UiButton @click.prevent="emitTask">Создать</UiButton>
   </div>
@@ -23,6 +28,10 @@ export default defineComponent({
   },
   data() {
     return {
+      modelConfig: {
+        type: "string",
+        mask: "DD-MM-YYYY",
+      },
       taskForm: {
         id: Math.random(),
         title: "",
@@ -31,6 +40,8 @@ export default defineComponent({
         idBoard: this.idBoard,
         status: "created",
         tags: [],
+        created_at: Date.now(),
+        endTask: new Date(),
       },
     };
   },
