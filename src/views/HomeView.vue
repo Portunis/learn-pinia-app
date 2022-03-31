@@ -32,6 +32,25 @@
       </template>
     </draggableComponent>
   </div>
+  <div>
+    <div @click="taskModal(this.taskTimeActive)" class="timer">
+      <div class="time">
+        <TimerComponent
+          :seconds="watch.seconds"
+          :minutes="watch.minutes"
+          :hours="watch.hours"
+        />
+      </div>
+      <div @click.stop class="time__button">
+        <fa
+          v-if="watch.isRunning"
+          icon="pause"
+          @click="watch.pause(), saveTimeLocalStorage()"
+        />
+        <fa v-if="!watch.isRunning" icon="play" @click="watch.start()" />
+      </div>
+    </div>
+  </div>
   <transition name="notification">
     <UiModal v-model:show="taskBodyModal">
       <TaskModal :task="task" @startTask="startTask" @endTask="endTask" />
@@ -57,7 +76,7 @@
 <script lang="ts">
 import CardItems from "@/components/Card/CardItems.vue";
 import UiModal from "@/components/UI/modal/UiModal.vue";
-
+import TimerComponent from "@/components/Timer/TimerComponent.vue";
 import UiNotification from "@/components/UI/notification/UiNotification.vue";
 
 import draggableComponent from "vuedraggable";
@@ -66,6 +85,7 @@ import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useStore } from "@/store";
 import { useTaskStore } from "@/store/task";
+import { useStopwatch } from "vue-timer-hook";
 
 import BoardModel from "@/models/board.model";
 import TaskModel from "@/models/task.model";
@@ -86,20 +106,29 @@ export default defineComponent({
     UiModal,
     CardItems,
     draggableComponent,
+    TimerComponent,
   },
   data() {
     return {
       dragging: false,
       drag: false,
-
+      watch: useStopwatch(this.initTimer(), false),
+      localTimer: 0,
+      stopwatchOffset: new Date(),
       taskBodyModal: false,
       boardCreateModal: false,
       taskCreateModal: false,
       notificationTask: false,
+      isTimeActive: false,
+      taskTimeActive: {} as TaskModel,
 
       task: {} as TaskModel,
       idBoard: 0,
     };
+  },
+  created() {
+    this.initTimer();
+    this.watch.pause();
   },
   computed: {
     ...mapState(useStore, {
@@ -107,6 +136,13 @@ export default defineComponent({
     }),
   },
   methods: {
+    /**
+     * Достает данные о время выполнения задачи
+     */
+    initTimer(): number {
+      const timeWorking = localStorage.getItem("setTimer");
+      return Number(timeWorking);
+    },
     /**
      * Открывает модальное окно для создания board
      * */
@@ -165,15 +201,44 @@ export default defineComponent({
       payload.timeStart = Date.now();
       payload.status = "active";
       this.editTask(payload);
+      this.watch.reset(0, false);
+      this.watch.start();
+      this.taskTimeActive = payload;
+      this.isTimeActive = true;
     },
     /**
      * Меняет статус task.isStatus = Completed
+     * Отключает таймер для задач...
      * @param payload - task
      * */
     endTask(payload: TaskModel): void {
+      this.saveTimeLocalStorage();
       payload.timeEnd = Date.now();
       payload.status = "completed";
+      this.taskTimeActive = {} as TaskModel;
+      payload.timer = this.initTimer();
       this.editTask(payload);
+      localStorage.removeItem("setTimer");
+      this.watch.reset(0, false);
+      this.isTimeActive = false;
+    },
+    // falseTask(payload: TaskModel): void {
+    //   payload.status = "false";
+    //   this.editTask(payload);
+    // },
+    /**
+     * Сохраняет время выполнения задачи в localstorage
+     *
+     */
+    saveTimeLocalStorage(): void {
+      localStorage.setItem(
+        "setTimer",
+        JSON.stringify(
+          this.watch.hours * 60 * 60 +
+            this.watch.minutes * 60 +
+            this.watch.seconds
+        )
+      );
     },
     // deleteTasks(payload: TaskModel): void {
     //   this.deleteTask(payload);
@@ -184,10 +249,15 @@ export default defineComponent({
     //   this.editTask(payload);
     // },
   },
+  unmounted() {
+    this.saveTimeLocalStorage();
+  },
 });
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/variables";
+
 .notification-enter-active,
 .notification-leave-active {
   transition: opacity 0.5s ease;
@@ -262,6 +332,33 @@ export default defineComponent({
     font-size: 32px;
     font-weight: bold;
     cursor: pointer;
+  }
+}
+
+//timer //
+
+.timer {
+  position: fixed;
+
+  display: flex;
+  align-items: center;
+
+  color: $secondary;
+  background-color: $dark;
+  border-radius: 10px;
+  padding: 10px 15px;
+
+  right: 35px;
+  bottom: 35px;
+
+  cursor: pointer;
+
+  &:hover {
+  }
+}
+.time {
+  &__button {
+    margin-left: 10px;
   }
 }
 </style>

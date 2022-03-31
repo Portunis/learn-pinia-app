@@ -12,7 +12,7 @@
           <BadgeInfo><fa icon="calendar" /> 23.03.2022</BadgeInfo>
         </div>
         <transition name="filter">
-          <div class="header__filter-body" v-if="filterOn">
+          <div v-if="filterOn">
             <BadgeInfo
               ><div>
                 <select>
@@ -36,6 +36,7 @@
 
       <NavBar />
     </div>
+
     <router-view />
   </div>
 </template>
@@ -44,6 +45,7 @@ import { defineComponent } from "vue";
 
 import { mapActions } from "pinia";
 import { useStore } from "@/store";
+
 import BadgeInfo from "@/components/UI/badge/BadgeInfo.vue";
 import NavBar from "@/components/NavBar/NavBar.vue";
 import { useTaskStore } from "@/store/task";

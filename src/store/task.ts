@@ -20,17 +20,17 @@ export const useTaskStore = defineStore("task", {
       const saveTask = getBoard[0].tasks;
       saveTask.push(payload);
       localStorage.setItem("saveBoard", JSON.stringify(board.boards));
+      this.initTask();
     },
     /**
      * Создает новый тэг у задачи
      * @param tagForm - форма с данными
-     * @param idBoard - id доски
      */
-    createTaskTag(tagForm: Tag, idBoard: number): void {
+    createTaskTag(tagForm: Tag): void {
+      console.log(tagForm);
       const board = useStore();
-      const getBoard = board.boards.filter((item) => item.id === idBoard);
-      const getTask = getBoard[0].tasks;
-      const tasks = getTask.filter((item) => item.id === tagForm.idTask);
+      const tasks = this.tasks.filter((item) => item.id === tagForm.idTask);
+      console.log(tasks);
       const saveTag = tasks[0].tags || [];
       saveTag.push(tagForm);
       localStorage.setItem("saveBoard", JSON.stringify(board.boards));
@@ -63,15 +63,15 @@ export const useTaskStore = defineStore("task", {
       const board = useStore();
       const boards = board.boards;
 
-      const tasks = boards.map((item) => {
-        return item.tasks.map((item) => {
-          return item;
+      if (boards) {
+        const tasks = boards.map((item) => {
+          return item.tasks.map((item) => {
+            return item;
+          });
         });
-      });
-      const test = tasks.flat();
-      this.tasks = test;
-      console.log(test);
-      console.log("sosi");
+        const test = tasks.flat();
+        this.tasks = test;
+      }
     },
     /**
      * Фильтрует задачи по дате

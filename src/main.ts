@@ -13,6 +13,8 @@ import VCalendar from "v-calendar";
 
 library.add(fas, faFontAwesome);
 
+import "@/assets/variables.scss"; // css var
+
 createApp(App)
   .use(createPinia())
   .use(VCalendar, {})

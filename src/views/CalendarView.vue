@@ -6,11 +6,7 @@
       :model-config="modelConfig"
     >
       <template v-slot="{ inputValue, inputEvents }">
-        <UiInput
-          class="bg-white border px-2 py-1 rounded"
-          :value="inputValue"
-          v-on="inputEvents"
-        /> </template
+        <UiInput :value="inputValue" v-on="inputEvents" /> </template
     ></v-date-picker>
 
     <div v-if="modelCalendar">
@@ -18,20 +14,27 @@
       <h2 v-if="!filteredTask.length">
         Задач на {{ modelCalendar }} не найдено
       </h2>
-      <table v-if="filteredTask.length" class="table">
-        <thead>
-          <tr>
-            <th>Задача</th>
-            <th>Статус</th>
-          </tr>
-        </thead>
-        <transition-group tag="tbody" name="list-move">
-          <tr v-for="filterTask in filteredTask" :key="filterTask.id">
-            <td>{{ filterTask.title }}</td>
-            <td>{{ filterTask.status }}</td>
-          </tr>
-        </transition-group>
-      </table>
+      <div class="table">
+        <div
+          class="table__item"
+          v-for="filterItem in filteredTask"
+          :key="filterItem.id"
+          @click="isActiveInfo = !isActiveInfo"
+        >
+          <div class="item__header">
+            <p>{{ filterItem.title }}</p>
+            <BadgeStatus :status="filterItem.status" class="status-table" />
+          </div>
+          <transition name="slide-fade">
+            <div v-if="isActiveInfo" class="item__body">
+              <div>
+                <p>{{ filterItem.description }}</p>
+                <p>Выполнить до: {{ filterItem.endTask }}</p>
+              </div>
+            </div>
+          </transition>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -40,15 +43,17 @@ import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useTaskStore } from "@/store/task";
 import UiInput from "@/components/UI/input/UiInput.vue";
+import BadgeStatus from "@/components/UI/badge/BadgeStatus.vue";
 
 export default defineComponent({
   name: "CalendarView",
-  components: { UiInput },
+  components: { BadgeStatus, UiInput },
   created() {
     this.initTask();
   },
   data() {
     return {
+      isActiveInfo: false,
       modelCalendar: "",
       modelConfig: {
         type: "string",
@@ -73,68 +78,44 @@ export default defineComponent({
 });
 </script>
 <style lang="scss" scoped>
+@import "../assets/variables";
 .table {
-  width: 100%;
-  border: none;
-  margin-bottom: 20px;
-  thead {
-    th {
-      font-weight: bold;
-      text-align: left;
-      border: none;
-      padding: 10px 15px;
-      background: #d8d8d8;
-      font-size: 14px;
+  margin: 20px auto;
+  width: 1200px;
+  &__item {
+    padding: 20px;
+    margin-bottom: 2px;
+    background-color: $gray-100;
+
+    &:hover {
+      background-color: $gray-200;
+      cursor: pointer;
     }
-    tr {
-      th {
-        &:first-child {
-          border-radius: 8px 0 0 8px;
-        }
-        &:last-child {
-          border-radius: 0 8px 8px 0;
-        }
-      }
+    &:first-of-type {
+      border-radius: 10px 10px 0 0;
     }
-  }
-  tbody {
-    td {
-      text-align: left;
-      border: none;
-      padding: 10px 15px;
-      font-size: 14px;
-      vertical-align: top;
-    }
-    tr {
-      &:nth-child(even) {
-        background: #f3f3f3;
-      }
-      td {
-        &:first-child {
-          border-radius: 8px 0 0 8px;
-        }
-        &:last-child {
-          border-radius: 0 8px 8px 0;
-        }
-      }
+    &:last-of-type {
+      border-radius: 0 0 10px 10px;
     }
   }
 }
-.list-move, /* apply transition to moving elements */
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.5s ease;
+.item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.list-enter-from,
-.list-leave-to {
+//transition
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-20px);
   opacity: 0;
-  transform: translateX(30px);
-}
-
-/* ensure leaving items are taken out of layout flow so that moving
-   animations can be calculated correctly. */
-.list-leave-active {
-  position: absolute;
 }
 </style>

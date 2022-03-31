@@ -115,7 +115,7 @@ export default defineComponent({
      */
     createTag(): void {
       this.inputTag = false;
-      this.tagCreate(this.tagForm, this.idBoard);
+      this.tagCreate(this.tagForm);
       this.idBoard = 1;
       this.tagForm = {
         id: 1,

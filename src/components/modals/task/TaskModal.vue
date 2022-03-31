@@ -2,7 +2,7 @@
   <div class="task-container">
     <div class="task">
       <div class="task__header">
-        <BadgeStatus :status="task.status"></BadgeStatus>
+        <BadgeStatus :status="task.status" />
         <div class="task__title">
           {{ task.title }}
         </div>
@@ -14,21 +14,22 @@
           class="task__option-button"
           v-if="(isOptionButton && isCreated) || isActive"
         >
-          <transition name="fade" mode="out-in">
-            <fa
-              icon="play"
-              v-if="isCreated"
-              class="icon"
-              @click="startTask(task)"
-            />
-          </transition>
-          <transition name="fade" mode="out-in">
-            <fa
-              icon="stop"
-              v-if="isActive"
-              class="icon"
-              @click="endTask(task)"
-            />
+          <transition name="no-mode-fade">
+            <div>
+              <fa
+                icon="play"
+                v-if="isCreated"
+                class="icon"
+                @click="startTask(task)"
+              />
+
+              <fa
+                icon="stop"
+                v-if="isActive"
+                class="icon"
+                @click="endTask(task)"
+              />
+            </div>
           </transition>
         </div>
       </div>
@@ -38,10 +39,14 @@
       <transition name="footer-info">
         <div v-if="isActiveInfo" class="task__info">
           <h2>Информация</h2>
-          <div class="task__info-body">
+          <div>
             <div>
               <p>Задача создана: {{ dateTime(task.created_at) }}</p>
-              <p>Выполнить до: {{ dateTime(task.endTask) }}</p>
+              <p>Выполнить до: {{ task.endTask }}</p>
+              <p>
+                Задача выполнена за: {{ timeHours }}h {{ timeMinute }}m
+                {{ timeSeconds }}s
+              </p>
             </div>
           </div>
         </div>
@@ -51,7 +56,7 @@
         <fa
           icon="arrow-down"
           class="icon"
-          :class="{ active: isActiveInfo }"
+          :class="{ icon_active: isActiveInfo }"
           @click="isActiveInfo = !isActiveInfo"
         />
         <!--        <UiButton v-if="isCreated" @click="startTask(task)">Начать</UiButton>-->
@@ -64,8 +69,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { Badge } from "@/typescript/enum/badge";
-
-import UiButton from "@/components/UI/button/UiButton.vue";
 
 import TaskModel from "@/models/task.model";
 import moment from "moment";
@@ -92,6 +95,15 @@ export default defineComponent({
     },
   },
   computed: {
+    timeHours(): number {
+      return Math.floor(this.task.timer / 60 / 60);
+    },
+    timeMinute(): number {
+      return Math.floor(this.task.timer / 60) - this.timeHours * 60;
+    },
+    timeSeconds(): number {
+      return this.task.timer % 60;
+    },
     isActive(): boolean {
       return this.task.status === Badge.Active;
     },
@@ -135,10 +147,12 @@ export default defineComponent({
 }
 .icon {
   cursor: pointer;
+  &_active {
+    color: #42b983;
+    transform: rotate(0.5turn);
+  }
 }
-.icon.active {
-  color: #42b983;
-}
+
 .task {
   position: relative;
   &__header {

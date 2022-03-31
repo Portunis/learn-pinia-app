@@ -12,4 +12,5 @@ export default interface TaskModel {
   tags?: Array<Tag>;
   created_at?: number;
   endTask: string;
+  timer: number;
 }
