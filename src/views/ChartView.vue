@@ -41,7 +41,7 @@ export default defineComponent({
   },
   created() {
     this.countTask();
-
+    console.log();
     this.taskChart = [
       this.createdTasks.length,
       this.activeTasks.length,

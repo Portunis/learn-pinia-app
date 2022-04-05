@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { useStore } from "@/store/index";
+import { useBoardStore } from "@/store/board";
 import TaskModel from "@/models/task.model";
 import Tag from "@/models/tag.model";
 export const useTaskStore = defineStore("task", {
@@ -9,11 +9,11 @@ export const useTaskStore = defineStore("task", {
   }),
   actions: {
     /**
-     * Создает новый task и добавляет их в массив tasks  в объекте boards, обновляет localstorage
+     * Создает новую задачу и добавляет их в массив tasks  в объекте boards, обновляет localstorage
      * @param payload - taskForm
      * */
     createTasks(payload: TaskModel): void {
-      const board = useStore();
+      const board = useBoardStore();
       const getBoard = board.boards.filter(
         (item) => item.id === payload.idBoard
       );
@@ -28,7 +28,7 @@ export const useTaskStore = defineStore("task", {
      */
     createTaskTag(tagForm: Tag): void {
       console.log(tagForm);
-      const board = useStore();
+      const board = useBoardStore();
       const tasks = this.tasks.filter((item) => item.id === tagForm.idTask);
       console.log(tasks);
       const saveTag = tasks[0].tags || [];
@@ -36,11 +36,11 @@ export const useTaskStore = defineStore("task", {
       localStorage.setItem("saveBoard", JSON.stringify(board.boards));
     },
     /**
-     * Удаление task из массива tasks и обновление localstorage
+     * Удаление задачу из массива tasks и обновляет localstorage
      * @param payload - task
      * */
     deleteTask(payload: TaskModel): void {
-      const board = useStore();
+      const board = useBoardStore();
       const data = board.boards.filter((item) => item.id === payload.idBoard);
       const dataTask = data[0].tasks;
       const indexTask = dataTask.indexOf(payload);
@@ -48,11 +48,11 @@ export const useTaskStore = defineStore("task", {
       board.updateLocalStorage();
     },
     /**
-     * Изменение task в массиве tasks
+     * Измененяет задачу в массиве tasks
      * @param payload -task
      * */
     editTask(payload: TaskModel): void {
-      const board = useStore();
+      const board = useBoardStore();
       console.log("editTask", payload);
       board.updateLocalStorage();
     },
@@ -60,29 +60,25 @@ export const useTaskStore = defineStore("task", {
      * Вытаскивает задачи из всех досок
      */
     initTask() {
-      const board = useStore();
+      const board = useBoardStore();
       const boards = board.boards;
 
       if (boards) {
-        const tasks = boards.map((item) => {
-          return item.tasks.map((item) => {
-            return item;
+        boards.forEach((item) => {
+          return item.tasks.forEach((item) => {
+            this.tasks.push(item);
           });
         });
-        const test = tasks.flat();
-        this.tasks = test;
       }
     },
     /**
      * Фильтрует задачи по дате
      *
-     * @param payload
+     * @param date - дата в формате 02-02-2022
      */
-    filterTasks(payload: string) {
+    filterTasks(date: string) {
       this.filteredTasks = [];
-      console.log("piniaFilter", payload);
-      const data = this.tasks.filter((item) => item.endTask === payload);
-      this.filteredTasks = data;
+      const data = this.tasks.filter((item) => item.endTask === date);
       if (data !== undefined) {
         this.filteredTasks = data;
       }

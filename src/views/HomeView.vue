@@ -1,5 +1,5 @@
 <template>
-  <BadgeInfo class="badge-button" @click="boardModalAdd">+</BadgeInfo>
+  <BadgeInfo class="badge-button" @click="boardCreateModal">+</BadgeInfo>
   <div class="boards">
     <draggableComponent
       :list="boards"
@@ -26,7 +26,7 @@
             <div class="board__option" @click="taskModalAdd(element)">...</div>
           </div>
           <div class="board__body">
-            <CardItems :tasks="element.tasks" @getTask="taskModal" />
+            <CardItems :tasks="element.tasks" @getTask="taskAboutModal" />
           </div>
         </div>
       </template>
@@ -52,18 +52,19 @@
     </div>
   </div>
   <transition name="notification">
-    <UiModal v-model:show="taskBodyModal">
-      <TaskModal :task="task" @startTask="startTask" @endTask="endTask" />
-    </UiModal>
-  </transition>
-  <transition name="notification">
-    <UiModal v-model:show="boardCreateModal">
-      <CreateBoard @createBoard="createBoard" />
-    </UiModal>
-  </transition>
-  <transition name="notification">
-    <UiModal v-model:show="taskCreateModal">
-      <CreateTask @createTask="createTask" :idBoard="idBoard" />
+    <UiModal v-model:show="showModal">
+      <TaskModal
+        v-if="showTaskModal"
+        :task="task"
+        @startTask="startTask"
+        @endTask="endTask"
+      />
+      <CreateBoard v-if="showCreateBoard" @createBoard="createBoard" />
+      <CreateTask
+        v-if="showCreateTask"
+        @createTask="createTask"
+        :idBoard="idBoard"
+      />
     </UiModal>
   </transition>
   <transition name="notification">
@@ -83,7 +84,7 @@ import draggableComponent from "vuedraggable";
 
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
-import { useStore } from "@/store";
+import { useBoardStore } from "@/store/board";
 import { useTaskStore } from "@/store/task";
 import { useStopwatch } from "vue-timer-hook";
 
@@ -115,9 +116,10 @@ export default defineComponent({
       watch: useStopwatch(this.initTimer(), false),
       localTimer: 0,
       stopwatchOffset: new Date(),
-      taskBodyModal: false,
-      boardCreateModal: false,
-      taskCreateModal: false,
+      showModal: false,
+      showCreateBoard: false,
+      showCreateTask: false,
+      showTaskModal: false,
       notificationTask: false,
       isTimeActive: false,
       taskTimeActive: {} as TaskModel,
@@ -131,7 +133,7 @@ export default defineComponent({
     this.watch.pause();
   },
   computed: {
-    ...mapState(useStore, {
+    ...mapState(useBoardStore, {
       boards: "boards",
     }),
   },
@@ -144,20 +146,26 @@ export default defineComponent({
       return Number(timeWorking);
     },
     /**
-     * Открывает модальное окно для создания board
-     * */
-    boardModalAdd(): void {
-      this.boardCreateModal = true;
+     * Открывает модальное окно для создания доски
+     */
+    boardCreateModal(): void {
+      this.showModal = true;
+      this.showCreateBoard = true;
+      this.showTaskModal = false;
+      this.showCreateTask = false;
     },
     /**
      * Добавляет id доски в переменную idBoard
-     * @param payload - board.id
-     *  */
-    taskModalAdd(payload: BoardModel): void {
-      this.idBoard = payload.id;
-      this.taskCreateModal = true;
+     * @param idBoard ID Доски
+     */
+    taskModalAdd(idBoard: BoardModel): void {
+      this.showModal = true;
+      this.idBoard = idBoard.id;
+      this.showCreateTask = true;
+      this.showTaskModal = false;
+      this.showCreateBoard = false;
     },
-    ...mapActions(useStore, {
+    ...mapActions(useBoardStore, {
       createBoards: "createBoards",
     }),
     ...mapActions(useTaskStore, {
@@ -166,37 +174,42 @@ export default defineComponent({
       editTask: "editTask",
     }),
     /**
-     * Создание новой доски для task
-     * @param payload - boarForm
+     * Создание новой доски для задачи
+     * @param boarForm - форма с данными
      * */
-    createBoard(payload: BoardModel): void {
-      this.createBoards(payload);
-      this.boardCreateModal = false;
+    createBoard(boarForm: BoardModel): void {
+      this.createBoards(boarForm);
+      this.showModal = false;
+      this.showCreateBoard = false;
     },
     /**
-     * Создание нового task
-     * @param payload - taskForm
-     * */
-    createTask(payload: TaskModel): void {
-      this.createTasks(payload);
-      this.taskCreateModal = false;
+     * Создание новой задачи
+     * @param taskForm - форма с данными
+     */
+    createTask(taskForm: TaskModel): void {
+      this.createTasks(taskForm);
+      this.showModal = false;
+      this.showCreateTask = false;
       this.notificationTask = true;
       setTimeout(() => {
         this.notificationTask = false;
       }, 5000);
     },
     /**
-     * Передаем данные в массив task  и открываем модальное окно с подробной информацией о выбранном task
-     * @param payload - task
-     * */
-    taskModal(payload: TaskModel): void {
-      this.task = payload;
-      this.taskBodyModal = true;
+     * Передаем данные в объект task  и открываем модальное окно с подробной информацией о выбранной задаче
+     * @param task - данные о задаче
+     */
+    taskAboutModal(task: TaskModel): void {
+      this.task = task;
+      this.showModal = true;
+      this.showTaskModal = true;
+      this.showCreateTask = false;
+      this.showCreateBoard = false;
     },
     /**
      * Меняет статус task.isStatus = Active
      * @param payload - task
-     * */
+     */
     startTask(payload: TaskModel): void {
       payload.timeStart = Date.now();
       payload.status = "active";
@@ -210,7 +223,7 @@ export default defineComponent({
      * Меняет статус task.isStatus = Completed
      * Отключает таймер для задач...
      * @param payload - task
-     * */
+     */
     endTask(payload: TaskModel): void {
       this.saveTimeLocalStorage();
       payload.timeEnd = Date.now();

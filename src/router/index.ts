@@ -32,6 +32,14 @@ const routes: Array<RouteRecordRaw> = [
     name: "ChartView",
     component: () => import("../views/ChartView.vue"),
   },
+  {
+    path: "/auth",
+    name: "LoginUser",
+    component: () => import("../components/auth/LoginUser.vue"),
+    meta: {
+      layout: "auth-layout",
+    },
+  },
 ];
 
 const router = createRouter({

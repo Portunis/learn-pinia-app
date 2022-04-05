@@ -1,8 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Open+Sans:wght@400;500;700&family=Raleway:wght@400;500;700&family=Rubik:wght@300;400;500;600;700;800;900&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Rubik:wght@300;400;500;600;700;800;900&display=swap");
 $primary: #5855fa;
 $secondary: #e4ecf7;
-$success: #41C685;
+$success: #41c685;
 $warning: #ffd363;
 $danger: #f16063;
 $info: #3385ff;
@@ -11,13 +10,13 @@ $base-white: #ffffff;
 $base-dark: #1d1d23;
 
 $main-colors: (
-        'primary': $primary,
-        'secondary': $secondary,
-        'success': $success,
-        'warning': $warning,
-        'danger': $danger,
-        'info': $info,
-        'dark': $dark,
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "warning": $warning,
+  "danger": $danger,
+  "info": $info,
+  "dark": $dark,
 );
 
 // grey colors
@@ -50,15 +49,15 @@ $hover-secondary: #a6c8fa;
 
 //box-shadow
 $shadow-sm: 0px 0px 1px rgba(12, 26, 75, 0.24),
-0px 3px 8px -1px rgba(50, 50, 71, 0.05);
+  0px 3px 8px -1px rgba(50, 50, 71, 0.05);
 $shadow-default: 0px 0px 1px rgba(12, 26, 75, 0.1),
-0px 4px 20px -2px rgba(50, 50, 71, 0.08);
+  0px 4px 20px -2px rgba(50, 50, 71, 0.08);
 $shadow-lg: 0px 0px 1px rgba(12, 26, 75, 0.1),
-0px 10px 16px rgba(20, 37, 63, 0.06);
+  0px 10px 16px rgba(20, 37, 63, 0.06);
 $shadow-xl: 0px 0px 1px rgba(12, 26, 75, 0.1),
-0px 20px 24px rgba(20, 37, 63, 0.06);
+  0px 20px 24px rgba(20, 37, 63, 0.06);
 $shadow-2xl: 0px 0px 1px rgba(12, 26, 75, 0.2),
-0px 30px 40px rgba(20, 37, 63, 0.1);
+  0px 30px 40px rgba(20, 37, 63, 0.1);
 
 //border-radius
 $all-sides-square: 0px;
@@ -68,16 +67,16 @@ $all-sides-xl: 12px;
 $all-sides-2xl: 16px;
 $all-sides-pill: 100px;
 
-
 // fonts
 $medium-font-weight: 500;
 $regular-font-weight: 400;
 $bold-font-weight: 700;
 
-$raleway-font: 'Raleway', sans-serif;
-$inter-font: 'Inter', sans-serif;
-$open-sans-font: 'Open Sans', sans-serif;
-$rubik-font: 'Rubik', sans-serif;
+$raleway-font: "Raleway", sans-serif;
+$inter-font: "Inter", sans-serif;
+$open-sans-font: "Open Sans", sans-serif;
+$rubik-font: "Rubik", sans-serif;
+$poppins-font: "Poppins", sans-serif;
 
 //text styles
 $h1-font-size: 48px;
@@ -188,6 +187,5 @@ $p8-fontRubik-style: regular;
   inter: $inter-font;
   openSans: $open-sans-font;
   rubik: $rubik-font;
-
-
+  poppins: $poppins-font;
 }

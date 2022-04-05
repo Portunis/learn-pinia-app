@@ -48,9 +48,6 @@ import BadgeStatus from "@/components/UI/badge/BadgeStatus.vue";
 export default defineComponent({
   name: "CalendarView",
   components: { BadgeStatus, UiInput },
-  created() {
-    this.initTask();
-  },
   data() {
     return {
       isActiveInfo: false,
@@ -69,7 +66,6 @@ export default defineComponent({
   methods: {
     ...mapActions(useTaskStore, {
       filter: "filterTasks",
-      initTask: "initTask",
     }),
     filterDate() {
       this.filter(this.modelCalendar);

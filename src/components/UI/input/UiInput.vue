@@ -20,22 +20,18 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+@import "../../../assets/variables";
 .input {
-  width: 334px;
-  border: 1px solid rgba(23, 23, 25, 0.2);
-  box-sizing: border-box;
+  max-width: 369px;
   border-radius: 10px;
-  margin: 5px auto;
-  padding: 12px 15px 12px 15px;
-  position: relative;
-}
-.input[type="text"]:focus {
-  background: rgba(197, 228, 249, 0.3);
-  border: 1px solid #1390e5;
-}
-.input[type="password"]:focus {
-  background: rgba(197, 228, 249, 0.3);
-  border: 1px solid #1390e5;
+  padding: 20px 26px 20px 26px;
+  background: #f0efff;
+  border: none;
+  outline: none;
+  font-family: $poppins-font;
+  font-weight: $regular-font-weight;
+  font-size: $p4-fontInter-size;
+  color: #a7a3ff;
 }
 @media screen and (max-width: 320px) {
   .input {

@@ -1,7 +1,8 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import AuthLayout from "@/layouts/AuthLayout.vue";
 import { createPinia } from "pinia";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -15,9 +16,26 @@ library.add(fas, faFontAwesome);
 
 import "@/assets/variables.scss"; // css var
 
+import firebase from "firebase";
+
+const firebaseConfig = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+};
+
+firebase.initializeApp(firebaseConfig);
+// /
+
 createApp(App)
   .use(createPinia())
   .use(VCalendar, {})
   .component("fa", FontAwesomeIcon)
+  .component("default-layout", DefaultLayout)
+  .component("auth-layout", AuthLayout)
   .use(router)
+
   .mount("#app");
