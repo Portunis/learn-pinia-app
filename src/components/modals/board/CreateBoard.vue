@@ -6,7 +6,9 @@
       <p>Выберите цвет</p>
       <input class="select-color" type="color" v-model="boardForm.color" />
     </form>
-    <UiButton @click.prevent="emitBoard">Создать</UiButton>
+    <UiButton @click.prevent="emitBoard" class="button__modal"
+      >Создать</UiButton
+    >
   </div>
 </template>
 
@@ -61,5 +63,10 @@ export default defineComponent({
     border: none;
     border-radius: 20px;
   }
+}
+.button__modal {
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin: 20px 0;
 }
 </style>

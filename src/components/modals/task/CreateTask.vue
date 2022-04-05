@@ -1,15 +1,27 @@
 <template>
   <div class="modal">
     <form class="modal-form">
-      <UiInput placeholder="Введите название" v-model="taskForm.title" />
-      <UiInput placeholder="Описание" v-model="taskForm.description" />
+      <UiInput
+        class="input__modal"
+        placeholder="Введите название"
+        v-model="taskForm.title"
+      />
+      <textarea
+        class="input__modal"
+        placeholder="Описание"
+        v-model="taskForm.description"
+      />
       <v-date-picker v-model="taskForm.endTask" :model-config="modelConfig">
         <template v-slot="{ inputValue, inputEvents }">
-          <UiInput :value="inputValue" v-on="inputEvents" />
+          <UiInput
+            class="input__modal"
+            :value="inputValue"
+            v-on="inputEvents"
+          />
         </template>
       </v-date-picker>
     </form>
-    <UiButton @click.prevent="emitTask">Создать</UiButton>
+    <UiButton @click.prevent="emitTask" class="button__modal">Создать</UiButton>
   </div>
 </template>
 
@@ -57,8 +69,28 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+@import "../../../assets/variables";
 .modal-form {
   display: flex;
   flex-direction: column;
+}
+.button__modal {
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+.input__modal {
+  margin: 10px 0;
+  max-width: 369px;
+  border-radius: 10px;
+  padding: 20px 26px 20px 26px;
+  background: #f0efff;
+  border: none;
+  outline: none;
+  font-family: $poppins-font;
+  font-weight: $regular-font-weight;
+  font-size: $p4-fontInter-size;
+  color: #a7a3ff;
+  resize: none;
 }
 </style>
