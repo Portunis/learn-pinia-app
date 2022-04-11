@@ -43,8 +43,8 @@ export default defineComponent({
     /**
      * Регистрируем пользователя в системе
      */
-    registerUser(): void {
-      firebase
+    async registerUser() {
+      await firebase
         .auth()
         .createUserWithEmailAndPassword(
           this.registerForm.email,

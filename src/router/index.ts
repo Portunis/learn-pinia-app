@@ -40,6 +40,22 @@ const routes: Array<RouteRecordRaw> = [
       layout: "auth-layout",
     },
   },
+  {
+    path: "/user",
+    name: "UserProfile",
+    component: () => import("../views/UserProfile.vue"),
+    meta: {
+      layout: "user-profile-layout",
+    },
+  },
+  {
+    path: "/user/info",
+    name: "InfoView",
+    component: () => import("../views/InfoView.vue"),
+    meta: {
+      layout: "user-profile-layout",
+    },
+  },
 ];
 
 const router = createRouter({

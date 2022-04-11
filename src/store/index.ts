@@ -35,12 +35,12 @@ export const useStore = defineStore("main", {
     /**
      * Авторизация с помощью google
      */
-    googleAuth(): void {
+    async googleAuth() {
       const provider = new firebase.auth.GoogleAuthProvider();
-      firebase
+      await firebase
         .auth()
         .signInWithPopup(provider)
-        .then(() => router.push("/"))
+        .then(() => router.push("/user/info"))
         .catch((error) => {
           console.log(error);
           this.errorMessage = error.message;
@@ -52,9 +52,9 @@ export const useStore = defineStore("main", {
     /**
      * Авторизация с помощью apple
      */
-    appleAuth(): void {
+    async appleAuth() {
       const provider = new firebase.auth.OAuthProvider("apple.com");
-      firebase
+      await firebase
         .auth()
         .signInWithPopup(provider)
         .then(() => router.push("/"))

@@ -35,7 +35,7 @@
         </p>
       </div>
 
-      <img class="auth__people" src="../assets/img/Saly-14.png" />
+      <img class="auth__people" src="../assets/img/pngegg.png" />
 
       <div>
         <RegisterUser
@@ -187,7 +187,7 @@ export default defineComponent({
   margin-top: 174px;
   &__people {
     margin-top: 260px;
-    height: 556px;
+    height: 460px;
   }
   &__text {
     margin: 80px 0 0 0;

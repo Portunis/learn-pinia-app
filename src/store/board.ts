@@ -2,12 +2,19 @@ import { defineStore } from "pinia";
 
 import BoardModel from "@/models/board.model";
 import firebase from "firebase";
+import BoardsTemplateModel from "@/models/boardsTemplate.model";
 
 export const useBoardStore = defineStore("board", {
   state: () => ({
     boards: [] as BoardModel[],
+    boardsTemplate: [] as BoardsTemplateModel[],
   }),
   actions: {
+    createTemplateBoards(nameTemplate: BoardsTemplateModel): void {
+      const createBoardTemplate = this.boardsTemplate || [];
+      createBoardTemplate.push(nameTemplate);
+      localStorage.setItem("boards", JSON.stringify(createBoardTemplate));
+    },
     /**
      * Создает новые доски и добавляет их в массив boards
      * @param boardForm - объект с данными о доске

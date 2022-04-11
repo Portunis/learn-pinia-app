@@ -53,7 +53,7 @@ export default defineComponent({
 .select-color {
   -webkit-appearance: none;
   border: none;
-  border-radius: 20px;
+  border-radius: 10px;
   width: 100%;
   height: 32px;
   &::-webkit-color-swatch-wrapper {
@@ -61,7 +61,7 @@ export default defineComponent({
   }
   &::-webkit-color-swatch {
     border: none;
-    border-radius: 20px;
+    border-radius: 10px;
   }
 }
 .button__modal {

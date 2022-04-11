@@ -49,8 +49,8 @@ export default defineComponent({
     /**
      * Авторизируем пользователя в системе
      */
-    authUser(): void {
-      firebase
+    async authUser() {
+      await firebase
         .auth()
         .signInWithEmailAndPassword(this.authForm.email, this.authForm.password)
         .then(() => router.push("/"))

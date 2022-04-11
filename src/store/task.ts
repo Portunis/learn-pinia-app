@@ -65,7 +65,7 @@ export const useTaskStore = defineStore("task", {
 
       if (boards) {
         boards.forEach((item) => {
-          return item.tasks.forEach((item) => {
+          item.tasks.forEach((item) => {
             this.tasks.push(item);
           });
         });

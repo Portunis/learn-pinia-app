@@ -297,7 +297,6 @@ export default defineComponent({
   &::-webkit-scrollbar {
     width: 12px;
   }
-
   &::-webkit-scrollbar-track {
     background: none;
   }
@@ -318,6 +317,7 @@ export default defineComponent({
 .title {
   max-width: 230px;
 }
+
 .board {
   width: 300px;
   display: block;
