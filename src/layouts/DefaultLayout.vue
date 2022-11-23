@@ -58,7 +58,7 @@ export default defineComponent({
       getUser: "getUserAuth",
     }),
     ...mapActions(useBoardStore, {
-      getBoards: "getBoardsFirebase",
+      getBoards: "getLocalStorage",
     }),
     ...mapActions(useTaskStore, {
       initTask: "initTask",

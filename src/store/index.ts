@@ -40,7 +40,7 @@ export const useStore = defineStore("main", {
       await firebase
         .auth()
         .signInWithPopup(provider)
-        .then(() => router.push("/user/info"))
+        .then(() => router.push("/dashboard"))
         .catch((error) => {
           console.log(error);
           this.errorMessage = error.message;

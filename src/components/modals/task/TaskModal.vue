@@ -96,13 +96,13 @@ export default defineComponent({
   },
   computed: {
     timeHours(): number {
-      return Math.floor(this.task.timer / 60 / 60);
+      return Math.floor(this.task.timer / 60 / 60) || 0;
     },
     timeMinute(): number {
-      return Math.floor(this.task.timer / 60) - this.timeHours * 60;
+      return Math.floor(this.task.timer / 60) - this.timeHours * 60 || 0;
     },
     timeSeconds(): number {
-      return this.task.timer % 60;
+      return this.task.timer % 60 || 0;
     },
     isActive(): boolean {
       return this.task.status === Badge.Active;
@@ -121,7 +121,7 @@ export default defineComponent({
      * @return { string } - dateTime - Отформатированное время завершения выполнения task
      * */
     dateTime(payload: number): string {
-      return moment(payload).format("H:mч  DD-MM-YYYYг");
+      return moment(payload).format("H:mmч  DD-MM-YYYYг");
     },
     /**
      * Передает task и запускает функицию startTask в компоненте HomeView

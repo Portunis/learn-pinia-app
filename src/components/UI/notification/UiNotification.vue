@@ -15,7 +15,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .notification {
   position: absolute;
-  top: 100px;
+  top: 50px;
   right: 30px;
   max-width: 400px;
   width: auto;
