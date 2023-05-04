@@ -1,24 +1,28 @@
-# learn-pinia-app
+# Current branch
 
-## Project setup
+### [frontend/supabase](https://github.com/Portunis/learn-pinia-app/tree/frontend/supabase)
+
+# Information
+
+### This project was developed in order to teach typescript.
+
+
+# Stack
+
 ```
-npm install
+1. VUE
+2. VUE-ROUTER
+3. LOTTIE ANIMATION
+4. PINIA
+5. SUPABASE
+6. TYPESCRIPT
+7. VUELIDATE
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+# Supabase
 
-### Compiles and minifies for production
+### .env
 ```
-npm run build
+SUPABASE_URL=""
+SUPABASE_KEY=""
 ```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

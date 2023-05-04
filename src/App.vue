@@ -1,11 +1,25 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view />
+  <component :is="layout">
+    <template v-slot:content>
+      <router-view />
+    </template>
+  </component>
 </template>
+<script lang="ts">
+import { defineComponent } from "vue";
 
+import BadgeInfo from "@/components/UI/badge/BadgeInfo.vue";
+import NavBar from "@/components/NavBar/NavBar.vue";
+
+export default defineComponent({
+  components: { NavBar, BadgeInfo },
+  computed: {
+    layout: function () {
+      return this.$route.meta.layout || "default-layout";
+    },
+  },
+});
+</script>
 <style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -14,17 +28,7 @@
   text-align: center;
   color: #2c3e50;
 }
-
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+::-webkit-scrollbar {
+  width: 0;
 }
 </style>
