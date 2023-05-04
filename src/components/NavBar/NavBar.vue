@@ -27,7 +27,11 @@
         class="user__avatar"
         src="https://i.pravatar.cc/300"
       />
-      <div v-if="showUserMenu" class="user__info">
+      <div
+        v-click-outside="closeUserMenu"
+        v-if="showUserMenu"
+        class="user__info"
+      >
         <h4 v-if="user.displayName">{{ user.displayName }}</h4>
         <h4 v-if="!user.displayName">{{ user.email }}</h4>
         <p class="user__button">Настройки</p>
@@ -40,8 +44,12 @@
 <script>
 import { defineComponent } from "vue";
 
-import { mapActions, mapState } from "pinia";
-import { useStore } from "@/store";
+import { mapState } from "pinia";
+import { useUserStore } from "@/store/user";
+
+import { handleLogout } from "@/vuetils/useAuth";
+import vClickOutside from "click-outside-vue3";
+import router from "@/router";
 
 export default defineComponent({
   name: "NavBar",
@@ -50,20 +58,25 @@ export default defineComponent({
       showUserMenu: false,
     };
   },
+  directives: {
+    ClickOutside: vClickOutside.directive,
+  },
   computed: {
-    ...mapState(useStore, {
+    ...mapState(useUserStore, {
       user: "user",
     }),
   },
   methods: {
-    ...mapActions(useStore, {
-      logOut: "logoutUser",
-    }),
     /**
      * Вызывает функицю вывода пользователя из системы
      */
     logOutUser() {
-      this.logOut();
+      handleLogout().then(() => {
+        router.push("/auth");
+      });
+    },
+    closeUserMenu() {
+      this.showUserMenu = false;
     },
   },
 });

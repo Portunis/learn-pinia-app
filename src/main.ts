@@ -12,28 +12,19 @@ import { fas, faFontAwesome } from "@fortawesome/free-solid-svg-icons";
 import "v-calendar/dist/style.css";
 import VCalendar from "v-calendar";
 
+import Vue3Lottie from "vue3-lottie";
+import "vue3-lottie/dist/style.css";
+
 library.add(fas, faFontAwesome);
 
 import "@/assets/variables.scss"; // css var
 
-import firebase from "firebase";
 import UserProfileLayout from "@/layouts/UserProfileLayout.vue";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCdOOPkuw2QYm1kqRQFFDOeH3YQ71GCwj4",
-  authDomain: "vue-task-portunis.firebaseapp.com",
-  projectId: "vue-task-portunis",
-  storageBucket: "vue-task-portunis.appspot.com",
-  messagingSenderId: "71168184352",
-  appId: "1:71168184352:web:771f9077c396d9bcacac45",
-};
-
-firebase.initializeApp(firebaseConfig);
-// /
 
 createApp(App)
   .use(createPinia())
   .use(VCalendar, {})
+  .use(Vue3Lottie, { name: "LottieAnimation" })
   .component("fa", FontAwesomeIcon)
   .component("default-layout", DefaultLayout)
   .component("auth-layout", AuthLayout)

@@ -37,12 +37,12 @@
         {{ task.description }}
       </div>
       <transition name="footer-info">
-        <div v-if="isActiveInfo" class="task__info">
+        <div v-show="isActiveInfo" class="task__info">
           <h2>Информация</h2>
           <div>
             <div>
               <p>Задача создана: {{ dateTime(task.created_at) }}</p>
-              <p>Выполнить до: {{ task.endTask }}</p>
+              <p>Выполнить до: {{ task.end_task }}</p>
               <p>
                 Задача выполнена за: {{ timeHours }}h {{ timeMinute }}m
                 {{ timeSeconds }}s
@@ -70,7 +70,7 @@
 import { defineComponent, PropType } from "vue";
 import { Badge } from "@/typescript/enum/badge";
 
-import TaskModel from "@/models/task.model";
+import ITask from "@/typescript/interfaces/ITask";
 import moment from "moment";
 
 import BadgeStatus from "@/components/UI/badge/BadgeStatus.vue";
@@ -90,20 +90,20 @@ export default defineComponent({
   },
   props: {
     task: {
-      type: Object as PropType<TaskModel>,
+      type: Object as PropType<ITask>,
       required: true,
     },
   },
   computed: {
-    timeHours(): number {
-      return Math.floor(this.task.timer / 60 / 60) || 0;
-    },
-    timeMinute(): number {
-      return Math.floor(this.task.timer / 60) - this.timeHours * 60 || 0;
-    },
-    timeSeconds(): number {
-      return this.task.timer % 60 || 0;
-    },
+    // timeHours(): number {
+    //   return Math.floor(this.task.timer / 60 / 60) || 0;
+    // },
+    // timeMinute(): number {
+    //   return Math.floor(this.task.timer / 60) - this.timeHours * 60 || 0;
+    // },
+    // timeSeconds(): number {
+    //   return this.task.timer % 60 || 0;
+    // },
     isActive(): boolean {
       return this.task.status === Badge.Active;
     },
@@ -127,14 +127,14 @@ export default defineComponent({
      * Передает task и запускает функицию startTask в компоненте HomeView
      * @param task
      * */
-    startTask(task: TaskModel) {
+    startTask(task: ITask) {
       this.$emit("startTask", task);
     },
     /**
      * Передает task и запускает функицию endTask в компоненте HomeView
      * @param task
      * */
-    endTask(task: TaskModel) {
+    endTask(task: ITask) {
       this.$emit("endTask", task);
     },
   },

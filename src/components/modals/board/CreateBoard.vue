@@ -1,12 +1,19 @@
 <template>
   <div class="modal">
     <form class="modal-form">
-      <UiInput placeholder="Введите название" v-model="boardForm.name" />
+      <UiInput
+        :data="{ type: 'text', placeholder: 'Введите название' }"
+        v-model="boardForm.name"
+      />
 
       <p>Выберите цвет</p>
       <input class="select-color" type="color" v-model="boardForm.color" />
     </form>
-    <UiButton @click.prevent="emitBoard" class="button__modal"
+    <UiButton
+      @click.prevent="emitBoard"
+      class="button__modal"
+      :class="v$.boardForm.name.$invalid ? 'disabled' : ''"
+      :isDisabled="v$.boardForm.name.$invalid"
       >Создать</UiButton
     >
   </div>
@@ -15,8 +22,15 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
+import useVuelidate from "@vuelidate/core";
+import { helpers, required } from "@vuelidate/validators";
+
 import UiButton from "@/components/UI/button/UiButton.vue";
 import UiInput from "@/components/UI/input/UiInput.vue";
+import IBoard from "@/typescript/interfaces/IBoard";
+import { validateMessage } from "@/typescript/enum/validateMessage";
+import { useUserStore } from "@/store/user";
+import { useBoardStore } from "@/store/board";
 
 export default defineComponent({
   name: "createBoard",
@@ -26,15 +40,28 @@ export default defineComponent({
   },
   data() {
     return {
+      v$: useVuelidate(),
       boardForm: {
-        id: Math.random(),
+        user_id: useUserStore().user,
         name: "",
         color: "#000000",
-        tasks: [],
+      } as IBoard,
+    };
+  },
+  validations() {
+    return {
+      boardForm: {
+        name: {
+          required: helpers.withMessage(
+            validateMessage.requiredInput,
+            required
+          ),
+        },
       },
     };
   },
   methods: {
+    useBoardStore,
     /**
      * Передаем форму для создания board
      * */
@@ -68,5 +95,9 @@ export default defineComponent({
   padding: 15px 20px;
   border-radius: 10px;
   margin: 20px 0;
+}
+.disabled {
+  background: gray;
+  cursor: default;
 }
 </style>

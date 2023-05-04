@@ -20,6 +20,9 @@ export default defineComponent({
   padding: 10px 20px;
   cursor: pointer;
   margin: 10px;
+  &:hover {
+    background-color: #edf2f7;
+  }
   &--completed {
     border: 1px solid #42b983;
     color: #42b983;

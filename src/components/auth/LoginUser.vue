@@ -1,34 +1,73 @@
 <template>
-  <h2>Авторизация</h2>
+  <h2 v-if="!activeResetPassword">Авторизация</h2>
+  <h2 v-if="activeResetPassword">Восстановление пароля</h2>
   <form class="form-user">
-    <div class="group-input">
+    <div v-if="!activeResetPassword" class="group-input">
       <UiInput
+        :data="{ type: 'email', placeholder: 'Введите email' }"
         class="form-user__input"
         v-model="authForm.email"
-        placeholder="Введите email"
+        :class="{
+          error: v$.authForm.email.$error,
+        }"
       />
-      <span v-if="errorMsg" class="input-error">{{ errorMsg }}</span>
+      <span class="input-error" v-if="v$.authForm.email.$error">
+        {{ v$.authForm.email.$errors[0].$message }}
+      </span>
+
       <UiInput
+        :data="{ type: 'password', placeholder: 'Введите пароль' }"
         class="form-user__input"
         v-model="authForm.password"
-        placeholder="Введите пароль"
+        :class="{
+          error: v$.authForm.password.$error,
+        }"
       />
+      <span class="input-error" v-if="v$.authForm.password.$error">
+        {{ v$.authForm.password.$errors[0].$message }}
+      </span>
     </div>
-    <span>Забыли пароль ?</span>
-
-    <UiButton @click.prevent="authUser" class="form-user__button"
-      >Авторизация</UiButton
+    <span
+      class="resetPassword"
+      v-if="!activeResetPassword"
+      @click="activeResetPassword = true"
+      >Забыли пароль ?</span
     >
+
+    <UiInput
+      v-if="activeResetPassword"
+      class="form-user__input"
+      placeholder="Введите почту"
+      v-model="emailResetPassword"
+    />
+    <div v-if="!loadingAuth">
+      <UiButton
+        v-if="!activeResetPassword"
+        @click.prevent="authUser"
+        class="form-user__button"
+        >Авторизация</UiButton
+      >
+      <UiButton
+        v-if="activeResetPassword"
+        @click.prevent="resetUserPassword"
+        class="form-user__button"
+        >Сбросить пароль</UiButton
+      >
+    </div>
   </form>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import firebase from "firebase";
+
+import useVuelidate from "@vuelidate/core";
+import { validateMessage } from "@/typescript/enum/validateMessage";
+import { handleLogin } from "@/vuetils/useAuth";
+
 import UiInput from "@/components/UI/input/UiInput.vue";
 import UiButton from "@/components/UI/button/UiButton.vue";
-import { mapActions } from "pinia";
-import { useStore } from "@/store";
+
+import { email, helpers, required } from "@vuelidate/validators";
 import router from "@/router";
 
 export default defineComponent({
@@ -37,6 +76,10 @@ export default defineComponent({
   template: "AuthLayout",
   data() {
     return {
+      v$: useVuelidate(),
+      loadingAuth: false,
+      activeResetPassword: false,
+      emailResetPassword: "",
       authForm: {
         email: "",
         password: "",
@@ -44,32 +87,42 @@ export default defineComponent({
       errorMsg: "",
     };
   },
-
+  validations() {
+    return {
+      authForm: {
+        email: {
+          email: helpers.withMessage(validateMessage.errorMail, email),
+          required: helpers.withMessage(
+            validateMessage.requiredInput,
+            required
+          ),
+        },
+        password: {
+          required: helpers.withMessage(
+            validateMessage.requiredInput,
+            required
+          ),
+        },
+      },
+      emailResetPassword: {
+        email: helpers.withMessage(validateMessage.errorMail, email),
+        required: helpers.withMessage(validateMessage.requiredInput, required),
+      },
+    };
+  },
   methods: {
-    /**
-     * Авторизируем пользователя в системе
-     */
-    async authUser() {
-      await firebase
-        .auth()
-        .signInWithEmailAndPassword(this.authForm.email, this.authForm.password)
-        .then(() => router.push("/"))
-        .catch((error) => {
-          switch (error.code) {
-            case "auth/invalid-email":
-              this.errorMsg = "Неверный email";
-              break;
-            case "auth/user-not-found":
-              this.errorMsg =
-                "Учетная запись с таким адресом электронной почты не найдена";
-              break;
-            case "auth/wrong-password":
-              this.errorMsg = "Неверный пароль";
-              break;
-            default:
-              this.errorMsg = "Email  или пароль неверны";
-              break;
+    authUser() {
+      handleLogin(this.authForm)
+        .then((data: any) => {
+          if (data.error) {
+            console.log("Ошибка", data.error);
+            this.v$.$validate();
+          } else {
+            router.push("/");
           }
+        })
+        .catch(() => {
+          this.v$.$validate();
         });
     },
   },
@@ -95,10 +148,22 @@ export default defineComponent({
 .input-error {
   color: #f16063;
   text-align: left;
+  width: 350px;
+  margin-left: 10px;
 }
 .group-input {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+.loaderAuth {
+  width: 100px;
+  margin: 15px auto;
+}
+.resetPassword {
+  &:hover {
+    color: #4d47c3;
+    cursor: pointer;
+  }
 }
 </style>

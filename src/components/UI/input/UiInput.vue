@@ -1,5 +1,11 @@
 <template>
-  <input class="input" @input="updateInput" :value="modelValue" />
+  <input
+    class="input"
+    @input="updateInput"
+    :value="modelValue"
+    :type="data.type"
+    :placeholder="data.placeholder"
+  />
 </template>
 
 <script lang="ts">
@@ -9,6 +15,9 @@ export default defineComponent({
   name: "uiInput",
   props: {
     modelValue: [String, Number],
+    data: {
+      type: Object,
+    },
   },
   methods: {
     updateInput(event: InputEvent) {

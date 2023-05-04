@@ -10,7 +10,7 @@
             >
           </div>
 
-          <BadgeInfo><fa icon="calendar" /> 23.03.2022</BadgeInfo>
+          <BadgeInfo><fa icon="calendar" /> {{ dateNow }}</BadgeInfo>
           <transition name="filter">
             <div class="filter" v-if="filterOn">
               <BadgeInfo>filter select</BadgeInfo>
@@ -27,14 +27,10 @@
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
-
-import { mapActions } from "pinia";
-import { useBoardStore } from "@/store/board";
+import moment from "moment";
 
 import BadgeInfo from "@/components/UI/badge/BadgeInfo.vue";
 import NavBar from "@/components/NavBar/NavBar.vue";
-import { useTaskStore } from "@/store/task";
-import { useStore } from "@/store";
 export default defineComponent({
   components: { NavBar, BadgeInfo },
   name: "DefaultLayout",
@@ -43,26 +39,14 @@ export default defineComponent({
       filterOn: false,
     };
   },
-  created() {
-    this.getBoards();
-    this.initTask();
-    this.getUser();
-  },
   computed: {
+    dateNow() {
+      let date = new Date(Date.now());
+      return moment(date).format("DD.MM.YYYY");
+    },
     layout: function () {
       return this.$route.meta.layout || "default-layout";
     },
-  },
-  methods: {
-    ...mapActions(useStore, {
-      getUser: "getUserAuth",
-    }),
-    ...mapActions(useBoardStore, {
-      getBoards: "getLocalStorage",
-    }),
-    ...mapActions(useTaskStore, {
-      initTask: "initTask",
-    }),
   },
 });
 </script>

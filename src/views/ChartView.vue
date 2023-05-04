@@ -4,7 +4,7 @@
     <fa class="icon" icon="warning" />
     Warning. This page is under development.
   </span>
-  <div class="charts">
+  <div class="charts" v-if="tasks.length">
     <div class="chart-doughnut">
       <h3 class="chart-doughnut__title">Stats tasks</h3>
       <div class="chart-body">
@@ -58,7 +58,7 @@ import { useTaskStore } from "@/store/task";
 import { doughnutOptions } from "@/charts/DoughnutConfig";
 import { lineChart, lineOptions, taskFilterToPush } from "@/charts/LineConfig";
 import { Chart, registerables } from "chart.js";
-import TaskModel from "@/models/task.model";
+import ITask from "@/typescript/interfaces/ITask";
 Chart.register(...registerables);
 const store = useTaskStore();
 export default defineComponent({
@@ -66,9 +66,9 @@ export default defineComponent({
   components: { DoughnutChart, LineChart },
   data() {
     return {
-      createdTasks: [] as TaskModel[],
-      activeTasks: [] as TaskModel[],
-      completedTasks: [] as TaskModel[],
+      createdTasks: [] as ITask[],
+      activeTasks: [] as ITask[],
+      completedTasks: [] as ITask[],
       optionsChart: {} as Record<string, unknown>,
       optionsLine: {} as Record<string, unknown>,
       lineData: {} as Record<string, unknown>,

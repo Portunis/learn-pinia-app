@@ -13,7 +13,6 @@ import NavBar from "@/components/NavBar/NavBar.vue";
 
 export default defineComponent({
   components: { NavBar, BadgeInfo },
-
   computed: {
     layout: function () {
       return this.$route.meta.layout || "default-layout";

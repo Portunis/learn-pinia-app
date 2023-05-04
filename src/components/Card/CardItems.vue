@@ -1,16 +1,12 @@
 <template>
   <draggableComponent
     :list="tasks"
+    :animation="200"
+    itemKey="id"
     group="tasks"
-    tag="transition-group"
-    :component-data="{
-      tag: 'div',
-      type: 'transition-group',
-      name: !drag ? 'flip-list' : null,
-    }"
-    item-key="id"
     class="list-group"
-    ghost-class="ghost"
+    ghost-class="moving-card"
+    @change="updatePositionTask"
     @start="dragging = true"
     @end="dragging = false"
   >
@@ -20,7 +16,27 @@
           <div class="task__container">
             <div class="task__header">
               <div class="task__title">{{ element.title }}</div>
-              <div class="task__option" @click="getTask(element)">...</div>
+              <DotsList
+                :key="element.id"
+                :id-element="element.id"
+                :click-element="clickElement"
+                :menu-items="[
+                  {
+                    label: 'Редактировать',
+                    icon: 'pen-to-square',
+                    onClickHandler: () => updateTask(element),
+                  },
+                  {
+                    label: 'Удалить',
+                    icon: 'trash',
+                    onClickHandler: () => deleteTask(element),
+                  },
+                ]"
+                :is-dot-menu-open="isDotMenuOpen"
+                @close="isDotMenuOpen = false"
+                :id="isDotMenuOpen"
+                @open="openDotMenu(element)"
+              ></DotsList>
             </div>
             <div class="task__body">
               <div class="task__description">
@@ -28,18 +44,7 @@
               </div>
             </div>
             <div class="task__footer">
-              <div class="tags">
-                <TagComponent v-for="tag in element.tags" :key="tag.id">{{
-                  tag.name
-                }}</TagComponent>
-                <TagComponent v-if="tagForm.idTask === element.id"
-                  ><input
-                    class="tags__input"
-                    v-model="tagForm.name"
-                    @keydown.enter="createTag"
-                /></TagComponent>
-                <p class="tags__button" @click="getIdTask(element)">Add tags</p>
-              </div>
+              <div class="tags">tags</div>
               <div class="tools">
                 <div class="tools__people"></div>
                 <div class="tools__utils">
@@ -58,18 +63,23 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 
-import TaskModel from "@/models/task.model";
+import ITask from "@/typescript/interfaces/ITask";
 
 import draggableComponent from "vuedraggable";
-import TagComponent from "@/components/UI/tag/TagComponent.vue";
 import { mapActions } from "pinia";
 import { useTaskStore } from "@/store/task";
+import DotsList from "@/components/UI/dots/DotsList.vue";
+import { deleteTask } from "@/vuetils/useTask";
 
 export default defineComponent({
   name: "CardItems",
-  components: { TagComponent, draggableComponent },
+  components: { draggableComponent, DotsList },
   data() {
     return {
+      clickElement: 0,
+      isCancelRequestDialog: false,
+      isEditMode: false,
+      isDotMenuOpen: false,
       dragging: false,
       drag: false,
       tags: false,
@@ -82,9 +92,10 @@ export default defineComponent({
       },
     };
   },
+  emits: ["getTask", "create-task", "task-delete"],
   props: {
     tasks: {
-      type: Array as PropType<TaskModel[]>,
+      type: Array as PropType<ITask[]>,
       required: true,
     },
   },
@@ -92,23 +103,21 @@ export default defineComponent({
   methods: {
     ...mapActions(useTaskStore, {
       tagCreate: "createTaskTag",
+      taskDelete: "deleteTask",
     }),
     /**
      * Передача element в компонент  HomeView
-     * @param element - task
+     * @param task - task
      * */
-    getTask(element: TaskModel): void {
-      this.$emit("getTask", element);
+    getTask(task: ITask): void {
+      this.$emit("getTask", task);
     },
     /**
-     * Определяем id задачи и id доски
-     * @param element - объект содержащий задачу
-     *
+     * Обновление позиции задачи в доске
+     * @param element - {} added, newIndex or removed, oldIndex
      */
-    getIdTask(element: TaskModel): void {
-      this.tagForm.idTask = element.id;
-      this.inputTag = true;
-      this.idBoard = element.idBoard;
+    updatePositionTask(element: []) {
+      console.log("123", element);
     },
     /**
      * Отправляет форму с данными и передет id доски
@@ -123,11 +132,28 @@ export default defineComponent({
         idTask: 1,
       };
     },
+    openDotMenu(element: ITask) {
+      this.isDotMenuOpen = !this.isDotMenuOpen;
+      this.clickElement = element.id;
+    },
+    updateTask(element: ITask): void {
+      console.log("create-task", element);
+      this.isDotMenuOpen = false;
+    },
+    deleteTask(element: ITask): void {
+      deleteTask(element);
+      this.isCancelRequestDialog = true;
+      this.isDotMenuOpen = false;
+      this.$emit("task-delete", element);
+    },
   },
 });
 </script>
 
 <style lang="scss" scoped>
+.moving-card {
+  @apply opacity-50 bg-gray-100 border border-blue-500;
+}
 .task {
   width: 280px;
   background: #fff;
@@ -136,7 +162,7 @@ export default defineComponent({
   margin-bottom: 20px;
   &__container {
     width: 250px;
-    margin: 0 auto;
+    padding: 15px;
   }
   &__header {
     display: flex;
@@ -147,6 +173,7 @@ export default defineComponent({
     overflow: hidden;
     font-weight: bold;
     max-width: 200px;
+    text-align: initial;
   }
   &__option {
     color: #e5e5e5;

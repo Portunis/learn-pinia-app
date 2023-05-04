@@ -1,5 +1,5 @@
 <template>
-  <button class="button">
+  <button class="button" :disabled="isDisabled">
     <slot></slot>
   </button>
 </template>
@@ -7,6 +7,12 @@
 <script>
 export default {
   name: "uiButton",
+  props: {
+    isDisabled: {
+      type: Boolean,
+      default: () => false,
+    },
+  },
 };
 </script>
 
@@ -22,5 +28,8 @@ export default {
   font-weight: $regular-font-weight;
   font-size: $p5-fontInter-size;
   color: #ffffff;
+  &:hover {
+    background-color: #4e4a98;
+  }
 }
 </style>

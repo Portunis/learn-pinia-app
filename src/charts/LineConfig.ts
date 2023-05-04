@@ -1,12 +1,12 @@
 import "../assets/variables.scss";
 import { useTaskStore } from "@/store/task";
-import TaskModel from "@/models/task.model";
+import ITask from "@/typescript/interfaces/ITask";
 
 const store = useTaskStore();
 
-const TASK_CREATE = [] as TaskModel[];
-const TASK_ACTIVE = [] as TaskModel[];
-const TASK_COMPLETED = [] as TaskModel[];
+const TASK_CREATE = [] as ITask[];
+const TASK_ACTIVE = [] as ITask[];
+const TASK_COMPLETED = [] as ITask[];
 
 const taskFilterToPush = () => {
   store.tasks.map((item) => {
@@ -22,10 +22,6 @@ const taskFilterToPush = () => {
         break;
     }
   });
-  console.log("Я заполнил данные");
-  console.log("Active", TASK_ACTIVE);
-  console.log("Complete", TASK_COMPLETED);
-  console.log("Created", TASK_CREATE);
 };
 
 const lineOptions = {
@@ -83,49 +79,53 @@ const lineOptions = {
 };
 
 const date = new Date(Date.now());
-const PreviosMonth = new Date(date.setMonth(date.getMonth()));
+const PreviousMonth = new Date(date.setMonth(date.getMonth()));
 
 let days: any = new Date(
-  PreviosMonth.getFullYear(),
-  PreviosMonth.getMonth() + 1,
+  PreviousMonth.getFullYear(),
+  PreviousMonth.getMonth() + 1,
   0
 ).getDate();
 
+const testTask: any = [
+  { x: 24, y: 1 },
+  { x: 25, y: 5 },
+];
+const SortingTasksByDate = () => {
+  const sortedTasks: ITask[] = [];
+  store.tasks.map((task: ITask) => {
+    if (task.time_end) {
+      sortedTasks.push(task);
+    }
+  });
+  testTask.sort(byField("x"));
+  testTask.forEach((item: { x: number; y: number }) => item.x);
+  console.log("testTask", testTask);
+  console.log("sortedTask", sortedTasks);
+  console.log("tasks", sortedTasks);
+};
+//TODO Переписать функцию порядка значений в массиве для отрисовки графика
+function byField(field: string) {
+  return (a: any, b: any) => (a[field] > b[field] ? 1 : -1);
+}
+SortingTasksByDate();
+
+const taskFilteredDate = [
+  {
+    x: 1,
+    y: 4,
+  },
+  {
+    x: 3,
+    y: 7,
+  },
+];
 const lineChart = {
   labels: (days = Array.from({ length: days }, (_, i) => i + 1)),
   datasets: [
     {
       label: "Выполнено",
-      data: [
-        "1",
-        "2",
-        "3",
-        "5",
-        "2",
-        "7",
-        "10",
-        "5",
-        "11",
-        "18",
-        "12",
-        "15",
-        "5",
-        "9",
-        "19",
-        "13",
-        "1",
-        "2",
-        "3",
-        "5",
-        "2",
-        "7",
-        "10",
-        "10",
-        "10",
-        "10",
-        "10",
-        "5",
-      ],
+      data: taskFilteredDate,
       borderJoinStyle: "bevel",
       backgroundColor: ["#FF6600"],
       borderColor: ["#FF6600"],
@@ -143,3 +143,33 @@ export {
   TASK_CREATE,
   TASK_ACTIVE,
 };
+/*
+"1",
+  "2",
+  "3",
+  "5",
+  "2",
+  "7",
+  "10",
+  "5",
+  "11",
+  "18",
+  "12",
+  "15",
+  "5",
+  "9",
+  "19",
+  "13",
+  "1",
+  "2",
+  "3",
+  "5",
+  "2",
+  "7",
+  "10",
+  "10",
+  "10",
+  "10",
+  "10",
+  "5",
+  */

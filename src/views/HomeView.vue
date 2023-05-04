@@ -1,8 +1,14 @@
 <template>
-  <BadgeInfo class="badge-button" @click="boardCreateModal">+</BadgeInfo>
-  <div class="boards">
+  <BadgeInfo
+    v-if="boards?.length"
+    class="badge-button"
+    @click="boardCreateModal"
+    ><fa icon="plus"
+  /></BadgeInfo>
+  <div class="boards" v-if="boards?.length && !isLoading">
     <draggableComponent
       :list="boards"
+      :animation="200"
       group="board"
       tag="transition-group"
       :component-data="{
@@ -10,55 +16,30 @@
         type: 'transition-group',
         name: !drag ? 'flip-list' : null,
       }"
-      item-key="id"
+      itemKey="id"
       class="boards"
       ghost-class="ghost"
       @start="dragging = true"
       @end="dragging = false"
     >
       <template #item="{ element }">
-        <div class="board">
-          <div class="board__header">
-            <div class="board__title">
-              <div class="status" :style="{ background: element.color }"></div>
-              <h2 class="title">{{ element.name }}</h2>
-            </div>
-            <div class="board__option" @click="taskModalAdd(element)">...</div>
-          </div>
-          <div class="board__body">
-            <CardItems :tasks="element.tasks" @getTask="taskAboutModal" />
-          </div>
-        </div>
+        <BoardItem :element="element" @create-task="taskModalAdd" />
       </template>
     </draggableComponent>
   </div>
-  <div>
-    <div @click="taskModal(this.taskTimeActive)" class="timer">
-      <div class="time">
-        <TimerComponent
-          :seconds="watch.seconds"
-          :minutes="watch.minutes"
-          :hours="watch.hours"
-        />
-      </div>
-      <div @click.stop class="time__button">
-        <fa
-          v-if="watch.isRunning"
-          icon="pause"
-          @click="watch.pause(), saveTimeLocalStorage()"
-        />
-        <fa v-if="!watch.isRunning" icon="play" @click="watch.start()" />
-      </div>
-    </div>
+  <div class="no-content" v-if="!boards?.length && !isLoading">
+    Начните работу прямо сейчас
+    <fa class="no-content__icon" icon="square-plus" @click="boardCreateModal" />
   </div>
+  <Vue3Lottie
+    v-if="isLoading"
+    :animationData="loader"
+    :height="200"
+    :width="200"
+    class="no-content"
+  />
   <transition name="notification">
-    <UiModal v-model:show="showModal">
-      <TaskModal
-        v-if="showTaskModal"
-        :task="task"
-        @startTask="startTask"
-        @endTask="endTask"
-      />
+    <UiModal v-model:show="showModal" v-model:is-loader="isLoader">
       <CreateBoard v-if="showCreateBoard" @createBoard="createBoard" />
       <CreateTask
         v-if="showCreateTask"
@@ -75,62 +56,84 @@
 </template>
 
 <script lang="ts">
-import CardItems from "@/components/Card/CardItems.vue";
 import UiModal from "@/components/UI/modal/UiModal.vue";
-import TimerComponent from "@/components/Timer/TimerComponent.vue";
 import UiNotification from "@/components/UI/notification/UiNotification.vue";
-
 import draggableComponent from "vuedraggable";
 
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useBoardStore } from "@/store/board";
 import { useTaskStore } from "@/store/task";
-import { useStopwatch } from "vue-timer-hook";
 
-import BoardModel from "@/models/board.model";
-import TaskModel from "@/models/task.model";
+import IBoard from "@/typescript/interfaces/IBoard";
+import ITask from "@/typescript/interfaces/ITask";
 
-import TaskModal from "@/components/modals/task/TaskModal.vue";
 import CreateBoard from "@/components/modals/board/CreateBoard.vue";
 import CreateTask from "@/components/modals/task/CreateTask.vue";
 import BadgeInfo from "@/components/UI/badge/BadgeInfo.vue";
-
+import BoardItem from "@/components/Board/BoardItem.vue";
+import {
+  createBoard,
+  getBoard,
+  unsubscribeBoard,
+  updateRealtimeBoard,
+} from "@/vuetils/useBoard";
+import {
+  createTask,
+  getTask,
+  unsubscribeTasks,
+  updateRealtimeTask,
+} from "@/vuetils/useTask";
+import { Vue3Lottie } from "vue3-lottie";
+import loader from "@/assets/animation/loader.json";
 export default defineComponent({
   name: "HomeView",
   components: {
+    Vue3Lottie,
+    BoardItem,
     BadgeInfo,
     CreateTask,
     CreateBoard,
-    TaskModal,
     UiNotification,
     UiModal,
-    CardItems,
     draggableComponent,
-    TimerComponent,
   },
   data() {
     return {
+      loader,
+      isLoader: false,
+      clickElement: 0,
+      isCancelRequestDialog: false,
+      isEditMode: false,
+      isDotMenuOpen: false,
+      isOptionBoard: false,
       dragging: false,
       drag: false,
-      watch: useStopwatch(this.initTimer(), false),
-      localTimer: 0,
-      stopwatchOffset: new Date(),
       showModal: false,
       showCreateBoard: false,
       showCreateTask: false,
       showTaskModal: false,
       notificationTask: false,
-      isTimeActive: false,
-      taskTimeActive: {} as TaskModel,
-
-      task: {} as TaskModel,
+      isLoading: useBoardStore().isLoading,
+      task: {} as ITask,
       idBoard: 0,
     };
   },
   created() {
-    this.initTimer();
-    this.watch.pause();
+    this.isLoading = true;
+  },
+  async mounted() {
+    await getTask().then();
+    await getBoard()
+      .then(() => {
+        this.isLoading = false;
+      })
+      .catch()
+      .finally(() => {
+        this.isLoading = false;
+      });
+    updateRealtimeTask();
+    updateRealtimeBoard();
   },
   computed: {
     ...mapState(useBoardStore, {
@@ -138,13 +141,6 @@ export default defineComponent({
     }),
   },
   methods: {
-    /**
-     * Достает данные о время выполнения задачи
-     */
-    initTimer(): number {
-      const timeWorking = localStorage.getItem("setTimer");
-      return Number(timeWorking);
-    },
     /**
      * Открывает модальное окно для создания доски
      */
@@ -158,16 +154,13 @@ export default defineComponent({
      * Добавляет id доски в переменную idBoard
      * @param idBoard ID Доски
      */
-    taskModalAdd(idBoard: BoardModel): void {
+    taskModalAdd(idBoard: IBoard): void {
       this.showModal = true;
       this.idBoard = idBoard.id;
       this.showCreateTask = true;
       this.showTaskModal = false;
       this.showCreateBoard = false;
     },
-    ...mapActions(useBoardStore, {
-      createBoards: "createBoards",
-    }),
     ...mapActions(useTaskStore, {
       createTasks: "createTasks",
       deleteTask: "deleteTask",
@@ -177,100 +170,40 @@ export default defineComponent({
      * Создание новой доски для задачи
      * @param boarForm - форма с данными
      * */
-    createBoard(boarForm: BoardModel): void {
-      this.createBoards(boarForm);
-      this.showModal = false;
-      this.showCreateBoard = false;
+    createBoard(boarForm: IBoard): void {
+      this.isLoader = true;
+      createBoard(boarForm).then(() => {
+        this.showModal = false;
+        this.showCreateBoard = false;
+        this.isLoader = false;
+      });
     },
     /**
      * Создание новой задачи
-     * @param taskForm - форма с данными
      */
-    createTask(taskForm: TaskModel): void {
-      this.createTasks(taskForm);
-      this.showModal = false;
-      this.showCreateTask = false;
-      this.notificationTask = true;
-      setTimeout(() => {
-        this.notificationTask = false;
-      }, 5000);
+    createTask(taskForm: ITask): void {
+      this.isLoader = true;
+      createTask(taskForm).then(() => {
+        this.isLoader = false;
+        this.showModal = false;
+        this.showCreateTask = false;
+        this.notificationTask = true;
+        setTimeout(() => {
+          this.notificationTask = false;
+        }, 5000);
+      });
     },
-    /**
-     * Передаем данные в объект task  и открываем модальное окно с подробной информацией о выбранной задаче
-     * @param task - данные о задаче
-     */
-    taskAboutModal(task: TaskModel): void {
-      this.task = task;
-      this.showModal = true;
-      this.showTaskModal = true;
-      this.showCreateTask = false;
-      this.showCreateBoard = false;
-    },
-    /**
-     * Меняет статус task.isStatus = Active
-     * @param payload - task
-     */
-    startTask(payload: TaskModel): void {
-      payload.timeStart = Date.now();
-      payload.status = "active";
-      this.editTask(payload);
-      this.watch.reset(0, false);
-      this.watch.start();
-      this.taskTimeActive = payload;
-      this.isTimeActive = true;
-    },
-    /**
-     * Меняет статус task.isStatus = Completed
-     * Отключает таймер для задач...
-     * @param payload - task
-     */
-    endTask(payload: TaskModel): void {
-      this.saveTimeLocalStorage();
-      payload.timeEnd = Date.now();
-      payload.status = "completed";
-      this.taskTimeActive = {} as TaskModel;
-      payload.timer = this.initTimer();
-      this.editTask(payload);
-      localStorage.removeItem("setTimer");
-      this.watch.reset(0, false);
-      this.isTimeActive = false;
-    },
-    // falseTask(payload: TaskModel): void {
-    //   payload.status = "false";
-    //   this.editTask(payload);
-    // },
-    /**
-     * Сохраняет время выполнения задачи в localstorage
-     *
-     */
-    saveTimeLocalStorage(): void {
-      localStorage.setItem(
-        "setTimer",
-        JSON.stringify(
-          this.watch.hours * 60 * 60 +
-            this.watch.minutes * 60 +
-            this.watch.seconds
-        )
-      );
-    },
-    // deleteTasks(payload: TaskModel): void {
-    //   this.deleteTask(payload);
-    //   this.boardCreateModal = false;
-    //   this.task = {} as TaskModel;
-    // },
-    // editTasks(payload: TaskModel): void {
-    //   this.editTask(payload);
-    // },
   },
   unmounted() {
-    this.saveTimeLocalStorage();
+    unsubscribeTasks();
+    unsubscribeBoard();
   },
 });
 </script>
 
 <style lang="scss" scoped>
 @import "../assets/variables";
-
+@import "@/assets/scss/mixins.scss";
 .notification-enter-active,
 .notification-leave-active {
   transition: opacity 0.5s ease;
@@ -304,6 +237,26 @@ export default defineComponent({
   &::-webkit-scrollbar-thumb {
     background-color: #e5e5e5;
     border-radius: 20px;
+  }
+}
+
+.no-content {
+  font-size: 32px;
+  font-family: $raleway-font;
+  font-weight: $bold-font-weight;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  &__icon {
+    margin-left: 20px;
+    width: 30px;
+    height: 30px;
+    &:hover {
+      cursor: pointer;
+      color: #1390e5;
+    }
   }
 }
 

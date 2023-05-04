@@ -35,7 +35,7 @@
         </p>
       </div>
 
-      <img class="auth__people" src="../assets/img/pngegg.png" />
+      <img class="auth__people" src="../assets/img/Saly-14.png" />
 
       <div>
         <RegisterUser
@@ -137,8 +137,8 @@
 import { defineComponent } from "vue";
 import LoginUser from "@/components/auth/LoginUser.vue";
 import RegisterUser from "@/components/auth/RegisterUser.vue";
-import { mapActions, mapState } from "pinia";
-import { useStore } from "@/store";
+import { mapState } from "pinia";
+import { useUserStore } from "@/store/user";
 import UiNotification from "@/components/UI/notification/UiNotification.vue";
 
 export default defineComponent({
@@ -151,29 +151,12 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapState(useStore, {
+    ...mapState(useUserStore, {
       errorMessage: "errorMessage",
     }),
   },
 
-  methods: {
-    ...mapActions(useStore, {
-      googleAuth: "googleAuth",
-      appleAuth: "appleAuth",
-    }),
-    /**
-     * Вызываем функцию авторизации с помощью google
-     */
-    authSocialGoogle() {
-      this.googleAuth();
-    },
-    /**
-     * Вызываем функцию авторизации с помощью apple
-     */
-    authSocialApple() {
-      this.appleAuth();
-    },
-  },
+  methods: {},
 });
 </script>
 <style lang="scss">

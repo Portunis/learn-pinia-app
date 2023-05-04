@@ -15,6 +15,7 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .container {
-  margin-left: 350px;
+  width: 1400px;
+  margin: 0 auto;
 }
 </style>
